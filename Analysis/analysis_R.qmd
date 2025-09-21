@@ -1,0 +1,206 @@
+---
+title: "A Behavioral-Economic Analysis of Demand for Social and Food Reinforcement in Rats"
+author: "Haoran (Matt) Wan"
+date: "today"
+format: 
+  html:
+    toc: true
+    code-fold: true
+    self-contained: true
+engine: knitr
+---
+
+## Introduction
+
+This document contains the R code to replicate the own- and cross-price demand curve analyses from the publication:
+
+> Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation*, *77*, 101780. https://doi.org/10.1016/j.lmot.2021.101780
+
+The analyses fit nonlinear and linear models to experimental data to quantify demand for food and social reinforcers in rats.
+
+## 1. Setup and Environment
+
+This chunk loads the necessary R packages, defines the helper functions used for the demand models, and loads the dataset. The data can be requested from me or from my coauthors, Cyrus Kirkman and Tim Hackenberg.
+
+```{r setup}
+#| message: false
+#| warning: false
+
+# Load required packages
+library(readr)
+library(dplyr)
+library(minpack.lm)
+
+# Inverse Hyperbolic Sine (log-like) transformation
+lhs <- function(x) {
+  log10(0.5 * x + sqrt(0.25 * (x^2) + 1))
+}
+
+# --- Load Data ---
+behav_data <- read.csv("Data/data with bl mean.csv") |>
+  # Add transformed consumption columns for modeling
+  mutate(foodr_lhs = lhs(foodr),
+         socr_lhs = lhs(socr))
+```
+
+---
+
+## 2. Results: Demand Curve Analysis
+
+This section replicates the model fitting in the order presented in the Results section of the published article. Each subsection corresponds to an experimental phase.
+
+### Phase 1: Food Price Varied, Social Price Constant
+
+In this phase, we analyze own-price demand for food and cross-price demand for social interaction.
+
+```{r phase1_analysis}
+#| tbl-cap: "Phase 1 Model Parameters"
+#| echo: true
+#| warning: false
+
+# --- Own-Price Demand (Food) ---
+# Fit the Zero-Bounded Exponential (ZBEn) model to food consumption data
+own_price_food_p1 <- group_by(behav_data, subj)  |>
+  filter(cond == 1) |>
+  summarise(
+    alpha = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[1],
+    Q0 = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[2]
+  )
+cat("--- Phase 1: Own-Price Food Demand (ZBEn Model) ---\n")
+print(own_price_food_p1)
+
+
+# --- Cross-Price Demand (Social) ---
+# Fit the exponential cross-price elasticity model
+cross_price_social_exp_p1 <- behav_data |>
+  filter(cond == 1) |>
+  group_by(subj) |>
+  summarise(
+    beta = coef(nlsLM(socr ~ log10(Q_a) + I * (exp(-b * foodfr)),
+                      start = list(b = .01, Q_a = 100, I = 1), 
+                      control = nls.lm.control(maxiter = 1024)))[1],
+    Q_alone = coef(nlsLM(socr ~ log10(Q_a) + I * (exp(-b * foodfr)),
+                         start = list(b = .01, Q_a = 100, I = 1), 
+                         control = nls.lm.control(maxiter = 1024)))[2],
+    I = coef(nlsLM(socr ~ log10(Q_a) + I * (exp(-b * foodfr)),
+                   start = list(b = .01, Q_a = 100, I = 1), 
+                   control = nls.lm.control(maxiter = 1024)))[3]
+  )
+cat("\n--- Phase 1: Cross-Price Social Demand (Exponential Model) ---\n")
+print(cross_price_social_exp_p1)
+```
+
+---
+
+### Phase 2: Social Price Varied, Food Price Constant
+
+Here, we analyze own-price demand for social interaction and cross-price demand for food.
+
+```{r phase2_analysis}
+#| tbl-cap: "Phase 2 Model Parameters"
+#| echo: true
+#| warning: false
+
+# --- Own-Price Demand (Social) ---
+# Fit the ZBEn model to social consumption data [cite: 1146-1149, 1017]
+own_price_social_p2 <- group_by(behav_data, subj) |>
+  filter(cond == 2) |>
+  summarise(
+    alpha = coef(nlsLM(socr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * socfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[1],
+    Q0 = coef(nlsLM(socr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * socfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[2]
+  )
+cat("--- Phase 2: Own-Price Social Demand (ZBEn Model) ---\n")
+print(own_price_social_p2)
+
+# --- Cross-Price Demand (Food) ---
+# Fit the exponential cross-price elasticity model
+cross_price_food_exp_p2 <- group_by(behav_data, subj) |>
+  filter(cond == 2) |>
+  summarise(
+    beta = coef(nlsLM(foodr ~ log10(Q_a) + I * (exp(-b * socfr)),
+                      start = list(b = .01, Q_a = 100, I = 1), 
+                      control = nls.lm.control(maxiter = 1024)))[1],
+    Q_alone = coef(nlsLM(foodr ~ log10(Q_a) + I * (exp(-b * socfr)),
+                         start = list(b = .01, Q_a = 100, I = 1), 
+                         control = nls.lm.control(maxiter = 1024)))[2],
+    I = coef(nlsLM(foodr ~ log10(Q_a) + I * (exp(-b * socfr)),
+                   start = list(b = .01, Q_a = 100, I = 1), 
+                   control = nls.lm.control(maxiter = 1024)))[3]
+  )
+cat("\n--- Phase 2: Cross-Price Food Demand (Exponential Model) ---\n")
+print(cross_price_food_exp_p2)
+```
+
+---
+
+### Phase 3: Concurrent Price Increase
+
+In this phase, the prices of both food and social reinforcers were increased together. We fit own-price demand curves for each reinforcer in this context.
+
+```{r phase3_analysis}
+#| tbl-cap: "Phase 3 Model Parameters"
+#| echo: true
+#| warning: false
+
+# --- Own-Price Demand (Food) ---
+own_price_food_p3 <- group_by(behav_data, subj) |>
+  filter(cond == 3) |>
+  summarise(
+    alpha = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[1],
+    Q0 = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[2]
+  )
+cat("--- Phase 3: Own-Price Food Demand (ZBEn Model) ---\n")
+print(own_price_food_p3)
+
+# --- Own-Price Demand (Social) ---
+own_price_social_p3 <- group_by(behav_data, subj) |> |>
+  filter(cond == 3) |>
+  summarise(
+    alpha = coef(nlsLM(socr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * socfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[1],
+    Q0 = coef(nlsLM(socr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * socfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[2]
+  )
+cat("\n--- Phase 3: Own-Price Social Demand (ZBEn Model) ---\n")
+print(own_price_social_p3)
+```
+
+---
+
+### Phase 4: Food Price Varied (Alone)
+
+In the final phase, food price was varied without a concurrent social alternative available. This allows for a comparison of food demand with and without the presence of a potential substitute.
+
+```{r phase4_analysis}
+#| tbl-cap: "Phase 4 Model Parameters"
+#| echo: true
+#| warning: false
+
+# --- Own-Price Demand (Food, Alone) ---
+own_price_food_p4 <- group_by(behav_data, subj) |>
+  filter(cond == 4) |>
+  summarise(
+    alpha = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[1],
+    Q0 = coef(nlsLM(foodr_lhs ~ lhs(Q_0) * (exp((-(a) / lhs(Q_0)) * (Q_0) * foodfr)),
+                       start = list(a = .0001, Q_0 = 50), 
+                       control = nls.lm.control(maxiter = 1024)))[2]
+  )
+cat("--- Phase 4: Own-Price Food Demand (ZBEn Model, No Social Alternative) ---\n")
+print(own_price_food_p4)
+```

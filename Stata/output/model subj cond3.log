@@ -1,0 +1,146 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond3.log
+  log type:  text
+ opened on:  27 May 2021, 00:15:41
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 2 & cond == 3
+(obs = 7)
+
+Iteration 0:  residual SS =  26.33102
+Iteration 1:  residual SS =   16.1397
+Iteration 2:  residual SS =  15.46689
+Iteration 3:  residual SS =  7.770114
+Iteration 4:  residual SS =  4.597392
+Iteration 5:  residual SS =  1.200654
+Iteration 6:  residual SS =  .7560967
+Iteration 7:  residual SS =  .2868888
+Iteration 8:  residual SS =  .0768955
+Iteration 9:  residual SS =  .0765494
+Iteration 10:  residual SS =  .0765494
+Iteration 11:  residual SS =  .0765494
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          7
+       Model |  29.538355          2  14.7691776    R-squared     =     0.9974
+    Residual |  .07654936          5  .015309872    Adj R-squared =     0.9964
+-------------+----------------------------------    Root MSE      =   .1237331
+       Total |  29.614905          7  4.23070066    Res. dev.     =  -11.74497
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   159.7768   23.48173     6.80   0.001     99.41511    220.1385
+         /b1 |   .0000592   .0000136     4.34   0.007     .0000242    .0000942
+------------------------------------------------------------------------------
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 3 & cond == 3
+(obs = 7)
+
+Iteration 0:  residual SS =  23.23891
+Iteration 1:  residual SS =    16.945
+Iteration 2:  residual SS =  13.53736
+Iteration 3:  residual SS =  9.464467
+Iteration 4:  residual SS =  2.998671
+Iteration 5:  residual SS =  1.172163
+Iteration 6:  residual SS =    .23931
+Iteration 7:  residual SS =  .0401686
+Iteration 8:  residual SS =  .0309269
+Iteration 9:  residual SS =  .0308904
+Iteration 10:  residual SS =  .0308904
+Iteration 11:  residual SS =  .0308904
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          7
+       Model |  26.633911          2  13.3169557    R-squared     =     0.9988
+    Residual |  .03089042          5  .006178085    Adj R-squared =     0.9984
+-------------+----------------------------------    Root MSE      =   .0786008
+       Total |  26.664802          7   3.8092574    Res. dev.     =  -18.09739
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   195.9239   19.46308    10.07   0.000     145.8924    245.9553
+         /b1 |   .0001353   .0000105    12.87   0.000     .0001083    .0001624
+------------------------------------------------------------------------------
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 2 & cond == 3
+(obs = 7)
+
+Iteration 0:  residual SS =  6.548609
+Iteration 1:  residual SS =  4.801067
+Iteration 2:  residual SS =  1.640727
+Iteration 3:  residual SS =  .7324055
+Iteration 4:  residual SS =  .2188381
+Iteration 5:  residual SS =  .1051759
+Iteration 6:  residual SS =  .1012738
+Iteration 7:  residual SS =   .101222
+Iteration 8:  residual SS =  .1012208
+Iteration 9:  residual SS =  .1012207
+Iteration 10:  residual SS =  .1012207
+Iteration 11:  residual SS =  .1012207
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          7
+       Model |  9.9620783          2  4.98103917    R-squared     =     0.9899
+    Residual |  .10122071          5  .020244143    Adj R-squared =     0.9859
+-------------+----------------------------------    Root MSE      =   .1422819
+       Total |  10.063299          7  1.43761415    Res. dev.     =  -9.789395
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   64.04564   15.65601     4.09   0.009     23.80058    104.2907
+         /b1 |   .0014478   .0002197     6.59   0.001     .0008831    .0020126
+------------------------------------------------------------------------------
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 3 & cond == 3
+(obs = 7)
+
+Iteration 0:  residual SS =   3.46601
+Iteration 1:  residual SS =  1.632221
+Iteration 2:  residual SS =  .5900947
+Iteration 3:  residual SS =  .2776552
+Iteration 4:  residual SS =  .2004816
+Iteration 5:  residual SS =  .1683828
+Iteration 6:  residual SS =  .1674651
+Iteration 7:  residual SS =  .1673458
+Iteration 8:  residual SS =  .1673336
+Iteration 9:  residual SS =  .1673321
+Iteration 10:  residual SS =   .167332
+Iteration 11:  residual SS =  .1673319
+Iteration 12:  residual SS =  .1673319
+Iteration 13:  residual SS =  .1673319
+Iteration 14:  residual SS =  .1673319
+Iteration 15:  residual SS =  .1673319
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          7
+       Model |  5.1010328          2  2.55051642    R-squared     =     0.9682
+    Residual |  .16733194          5  .033466388    Adj R-squared =     0.9555
+-------------+----------------------------------    Root MSE      =   .1829382
+       Total |  5.2683648          7  .752623539    Res. dev.     =  -6.270662
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   55.45275   27.67675     2.00   0.101     -15.6926    126.5981
+         /b1 |   .0047698    .001168     4.08   0.010     .0017672    .0077723
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond3.log
+  log type:  text
+ closed on:  27 May 2021, 00:21:05
+----------------------------------------------------------------------------------------------------------

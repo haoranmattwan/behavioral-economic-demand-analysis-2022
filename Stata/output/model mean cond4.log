@@ -1,0 +1,47 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond4.log
+  log type:  text
+ opened on:  27 May 2021, 11:20:10
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if cond == 4
+(obs = 10)
+
+Iteration 0:  residual SS =  28.22261
+Iteration 1:  residual SS =  26.20588
+Iteration 2:  residual SS =  21.33442
+Iteration 3:  residual SS =  13.15571
+Iteration 4:  residual SS =  6.201161
+Iteration 5:  residual SS =  3.068581
+Iteration 6:  residual SS =  1.040573
+Iteration 7:  residual SS =  .1378444
+Iteration 8:  residual SS =  .0210722
+Iteration 9:  residual SS =  .0173551
+Iteration 10:  residual SS =  .0173492
+Iteration 11:  residual SS =  .0173492
+Iteration 12:  residual SS =  .0173492
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =         10
+       Model |  31.937773          2  15.9688863    R-squared     =     0.9995
+    Residual |  .01734917          8  .002168646    Adj R-squared =     0.9993
+-------------+----------------------------------    Root MSE      =   .0465687
+       Total |  31.955122         10  3.19551218    Res. dev.     =  -35.18919
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   232.8935   12.06098    19.31   0.000     205.0809    260.7062
+         /b1 |   .0000785   3.16e-06    24.81   0.000     .0000712    .0000858
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond4.log
+  log type:  text
+ closed on:  27 May 2021, 11:20:41
+----------------------------------------------------------------------------------------------------------

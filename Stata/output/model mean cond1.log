@@ -1,0 +1,98 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond1.log
+  log type:  text
+ opened on:  27 May 2021, 11:15:29
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if cond == 1
+(obs = 10)
+
+Iteration 0:  residual SS =  21.27578
+Iteration 1:  residual SS =  16.64855
+Iteration 2:  residual SS =  7.875411
+Iteration 3:  residual SS =  3.396748
+Iteration 4:  residual SS =  .9752334
+Iteration 5:  residual SS =  .9328473
+Iteration 6:  residual SS =  .0766821
+Iteration 7:  residual SS =  .0513269
+Iteration 8:  residual SS =   .051097
+Iteration 9:  residual SS =  .0510944
+Iteration 10:  residual SS =  .0510944
+Iteration 11:  residual SS =  .0510944
+Iteration 12:  residual SS =  .0510944
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =         10
+       Model |  24.583428          2  12.2917142    R-squared     =     0.9979
+    Residual |   .0510944          8    .0063868    Adj R-squared =     0.9974
+-------------+----------------------------------    Root MSE      =   .0799175
+       Total |  24.634523         10  2.46345228    Res. dev.     =  -24.38788
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   213.2097   22.07714     9.66   0.000     162.2998    264.1197
+         /b1 |   .0001919   .0000141    13.57   0.000     .0001593    .0002245
+------------------------------------------------------------------------------
+
+. nl (lsocr =log10({b0=40})+(-({b1=1}))*exp(-({b2=0.001})*foodfr)) if cond == 1
+(obs = 10)
+
+Iteration 0:  residual SS =  6.969979
+Iteration 1:  residual SS =  6.929369
+Iteration 2:  residual SS =   6.88385
+Iteration 3:  residual SS =  6.509868
+Iteration 4:  residual SS =  3.927453
+Iteration 5:  residual SS =   .860513
+Iteration 6:  residual SS =  .3665558
+Iteration 7:  residual SS =   .195903
+Iteration 8:  residual SS =  .0430731
+Iteration 9:  residual SS =  .0272418
+Iteration 10:  residual SS =  .0272142
+Iteration 11:  residual SS =  .0272142
+Iteration 12:  residual SS =  .0272142
+Iteration 13:  residual SS =  .0272142
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =         10
+       Model |  .45834151          2  .229170755    R-squared     =     0.9440
+    Residual |  .02721416          7  .003887737    Adj R-squared =     0.9279
+-------------+----------------------------------    Root MSE      =   .0623517
+       Total |  .48555567          9   .05395063    Res. dev.     =  -30.68726
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   76.00166   9.664568     7.86   0.000     53.14859    98.85474
+         /b1 |   .5815218    .058423     9.95   0.000     .4433733    .7196702
+         /b2 |   .0105414   .0031259     3.37   0.012     .0031497    .0179331
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. reg lsocr foodfr if cond == 1
+
+      Source |       SS           df       MS      Number of obs   =        10
+-------------+----------------------------------   F(1, 8)         =     21.95
+       Model |  .355841429         1  .355841429   Prob > F        =    0.0016
+    Residual |  .129714238         8   .01621428   R-squared       =    0.7329
+-------------+----------------------------------   Adj R-squared   =    0.6995
+       Total |  .485555668         9   .05395063   Root MSE        =    .12734
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+      foodfr |   .0012055   .0002573     4.68   0.002     .0006121    .0017989
+       _cons |   1.394311   .0481081    28.98   0.000     1.283373    1.505248
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond1.log
+  log type:  text
+ closed on:  27 May 2021, 11:16:36
+----------------------------------------------------------------------------------------------------------

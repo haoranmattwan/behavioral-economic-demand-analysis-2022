@@ -1,0 +1,80 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond4.log
+  log type:  text
+ opened on:  27 May 2021, 00:21:37
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 2 & cond == 4
+(obs = 10)
+
+Iteration 0:  residual SS =  31.67403
+Iteration 1:  residual SS =  29.29941
+Iteration 2:  residual SS =  23.85914
+Iteration 3:  residual SS =  12.07006
+Iteration 4:  residual SS =   6.45147
+Iteration 5:  residual SS =  3.056192
+Iteration 6:  residual SS =  1.047283
+Iteration 7:  residual SS =  .1815144
+Iteration 8:  residual SS =  .0813078
+Iteration 9:  residual SS =  .0783437
+Iteration 10:  residual SS =  .0783401
+Iteration 11:  residual SS =  .0783401
+Iteration 12:  residual SS =  .0783401
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =         10
+       Model |  35.622824          2  17.8114121    R-squared     =     0.9978
+    Residual |  .07834006          8  .009792508    Adj R-squared =     0.9973
+-------------+----------------------------------    Root MSE      =   .0989571
+       Total |  35.701164         10  3.57011642    Res. dev.     =  -20.11404
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   273.1477    29.0746     9.39   0.000     206.1016    340.1939
+         /b1 |   .0000558   4.69e-06    11.90   0.000      .000045    .0000666
+------------------------------------------------------------------------------
+
+. nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b
+> 0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 3 & cond == 4
+(obs = 9)
+
+Iteration 0:  residual SS =  23.73842
+Iteration 1:  residual SS =  17.37432
+Iteration 2:  residual SS =  11.44388
+Iteration 3:  residual SS =  8.107058
+Iteration 4:  residual SS =  3.576756
+Iteration 5:  residual SS =  1.385648
+Iteration 6:  residual SS =  .1465531
+Iteration 7:  residual SS =  .0516548
+Iteration 8:  residual SS =  .0464319
+Iteration 9:  residual SS =  .0464038
+Iteration 10:  residual SS =  .0464036
+Iteration 11:  residual SS =  .0464036
+Iteration 12:  residual SS =  .0464036
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          9
+       Model |  27.098685          2  13.5493423    R-squared     =     0.9983
+    Residual |  .04640357          7  .006629082    Adj R-squared =     0.9978
+-------------+----------------------------------    Root MSE      =   .0814192
+       Total |  27.145088          9  3.01612091    Res. dev.     =  -21.86754
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   193.2478   18.62408    10.38   0.000     149.2089    237.2867
+         /b1 |   .0001311   9.53e-06    13.76   0.000     .0001086    .0001536
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond4.log
+  log type:  text
+ closed on:  27 May 2021, 00:22:19
+----------------------------------------------------------------------------------------------------------

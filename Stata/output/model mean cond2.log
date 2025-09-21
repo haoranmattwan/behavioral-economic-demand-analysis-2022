@@ -1,0 +1,139 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond2.log
+  log type:  text
+ opened on:  27 May 2021, 11:17:07
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if cond == 2
+(obs = 6)
+
+Iteration 0:  residual SS =  3.820038
+Iteration 1:  residual SS =  1.412272
+Iteration 2:  residual SS =  .9646394
+Iteration 3:  residual SS =  .3179956
+Iteration 4:  residual SS =  .2018335
+Iteration 5:  residual SS =  .1783571
+Iteration 6:  residual SS =   .176026
+Iteration 7:  residual SS =  .1758135
+Iteration 8:  residual SS =  .1757816
+Iteration 9:  residual SS =  .1757775
+Iteration 10:  residual SS =  .1757769
+Iteration 11:  residual SS =  .1757768
+Iteration 12:  residual SS =  .1757768
+Iteration 13:  residual SS =  .1757768
+Iteration 14:  residual SS =  .1757768
+Iteration 15:  residual SS =  .1757768
+Iteration 16:  residual SS =  .1757768
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          6
+       Model |  5.5407896          2  2.77039481    R-squared     =     0.9693
+    Residual |  .17577678          4  .043944195    Adj R-squared =     0.9539
+-------------+----------------------------------    Root MSE      =   .2096287
+       Total |  5.7165664          6  .952761068    Res. dev.     =  -4.154537
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   43.22113   20.93534     2.06   0.108    -14.90469     101.347
+         /b1 |   .0041418   .0010452     3.96   0.017     .0012398    .0070438
+------------------------------------------------------------------------------
+
+. nl (lfoodr =log10({b0=100})+(-({b1=0}))*exp(-({b2=0})*socfr)) if cond == 2
+(obs = 6)
+
+Iteration 0:  residual SS =  .0033736
+Iteration 1:  residual SS =  .0002491
+Iteration 2:  residual SS =   .000247
+Iteration 3:  residual SS =  .0002467
+Iteration 4:  residual SS =  .0002462
+Iteration 5:  residual SS =  .0002457
+Iteration 6:  residual SS =  .0002452
+Iteration 7:  residual SS =  .0002447
+Iteration 8:  residual SS =  .0002441
+Iteration 9:  residual SS =  .0002436
+Iteration 10:  residual SS =   .000243
+Iteration 11:  residual SS =   .000243
+Iteration 12:  residual SS =  .0002429
+Iteration 13:  residual SS =  .0002427
+Iteration 14:  residual SS =  .0002424
+Iteration 15:  residual SS =  .0002419
+Iteration 16:  residual SS =  .0002414
+Iteration 17:  residual SS =  .0002408
+Iteration 18:  residual SS =    .00024
+Iteration 19:  residual SS =  .0002392
+Iteration 20:  residual SS =  .0002383
+Iteration 21:  residual SS =  .0002373
+Iteration 22:  residual SS =  .0002362
+Iteration 23:  residual SS =   .000236
+Iteration 24:  residual SS =  .0002354
+Iteration 25:  residual SS =  .0002344
+Iteration 26:  residual SS =  .0002332
+Iteration 27:  residual SS =  .0002318
+Iteration 28:  residual SS =  .0002301
+Iteration 29:  residual SS =  .0002283
+Iteration 30:  residual SS =  .0002282
+Iteration 31:  residual SS =  .0002272
+Iteration 32:  residual SS =  .0002253
+Iteration 33:  residual SS =  .0002228
+Iteration 34:  residual SS =  .0002199
+Iteration 35:  residual SS =  .0002166
+Iteration 36:  residual SS =  .0002159
+Iteration 37:  residual SS =  .0002128
+Iteration 38:  residual SS =  .0002081
+Iteration 39:  residual SS =  .0002024
+Iteration 40:  residual SS =     .0002
+Iteration 41:  residual SS =  .0001918
+Iteration 42:  residual SS =  .0001877
+Iteration 43:  residual SS =   .000175
+Iteration 44:  residual SS =  .0001197
+Iteration 45:  residual SS =  .0001191
+Iteration 46:  residual SS =   .000119
+Iteration 47:  residual SS =   .000119
+Iteration 48:  residual SS =   .000119
+Iteration 49:  residual SS =   .000119
+Iteration 50:  residual SS =   .000119
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          6
+       Model |  .00325434          2  .001627171    R-squared     =     0.9647
+    Residual |  .00011903          3  .000039678    Adj R-squared =     0.9412
+-------------+----------------------------------    Root MSE      =    .006299
+       Total |  .00337338          5  .000674675    Res. dev.     =  -47.93994
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |    188.359   8.942555    21.06   0.000     159.8998    216.8182
+         /b1 |  -.0127898   .0173208    -0.74   0.514    -.0679124    .0423328
+         /b2 |  -.0570872   .0348273    -1.64   0.200    -.1679233    .0537489
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. reg lfoodr socfr if cond == 2
+
+      Source |       SS           df       MS      Number of obs   =         6
+-------------+----------------------------------   F(1, 4)         =     43.17
+       Model |  .003087327         1  .003087327   Prob > F        =    0.0028
+    Residual |  .000286049         4  .000071512   R-squared       =    0.9152
+-------------+----------------------------------   Adj R-squared   =    0.8940
+       Total |  .003373376         5  .000674675   Root MSE        =    .00846
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       socfr |   .0020949   .0003188     6.57   0.003     .0012097    .0029801
+       _cons |    2.28224   .0048089   474.58   0.000     2.268888    2.295592
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model mea
+> n cond2.log
+  log type:  text
+ closed on:  27 May 2021, 11:18:26
+----------------------------------------------------------------------------------------------------------

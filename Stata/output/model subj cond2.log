@@ -1,0 +1,554 @@
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond2.log
+  log type:  text
+ opened on:  26 May 2021, 23:54:18
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 1 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =  3.865324
+Iteration 1:  residual SS =   2.14359
+Iteration 2:  residual SS =  1.898463
+Iteration 3:  residual SS =  1.532136
+Iteration 4:  residual SS =  .5721799
+Iteration 5:  residual SS =  .2760339
+Iteration 6:  residual SS =   .227427
+Iteration 7:  residual SS =   .226948
+Iteration 8:  residual SS =  .2269263
+Iteration 9:  residual SS =  .2269234
+Iteration 10:  residual SS =   .226923
+Iteration 11:  residual SS =   .226923
+Iteration 12:  residual SS =   .226923
+Iteration 13:  residual SS =   .226923
+Iteration 14:  residual SS =   .226923
+Iteration 15:  residual SS =   .226923
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |  5.4784503          2  2.73922517    R-squared     =     0.9602
+    Residual |  .22692296          3  .075640988    Adj R-squared =     0.9337
+-------------+----------------------------------    Root MSE      =   .2750291
+       Total |  5.7053733          5  1.14107466    Res. dev.     =  -1.273528
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |    36.6008   22.32899     1.64   0.200       -34.46    107.6616
+         /b1 |   .0040747   .0013388     3.04   0.056    -.0001861    .0083355
+------------------------------------------------------------------------------
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 2 & cond == 2
+(obs = 6)
+
+Iteration 0:  residual SS =  5.070621
+Iteration 1:  residual SS =  4.747067
+Iteration 2:  residual SS =  3.912907
+Iteration 3:  residual SS =  2.002616
+Iteration 4:  residual SS =  1.308517
+Iteration 5:  residual SS =  .5723449
+Iteration 6:  residual SS =  .4094646
+Iteration 7:  residual SS =  .3817526
+Iteration 8:  residual SS =   .378662
+Iteration 9:  residual SS =   .378382
+Iteration 10:  residual SS =  .3783365
+Iteration 11:  residual SS =  .3783303
+Iteration 12:  residual SS =  .3783294
+Iteration 13:  residual SS =  .3783293
+Iteration 14:  residual SS =  .3783293
+Iteration 15:  residual SS =  .3783293
+Iteration 16:  residual SS =  .3783293
+Iteration 17:  residual SS =  .3783293
+Iteration 18:  residual SS =  .3783293
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          6
+       Model |  7.1443632          2   3.5721816    R-squared     =     0.9497
+    Residual |  .37832926          4  .094582316    Adj R-squared =     0.9246
+-------------+----------------------------------    Root MSE      =   .3075424
+       Total |  7.5226925          6  1.25378208    Res. dev.     =   .4447632
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   67.84933   47.13787     1.44   0.223    -63.02636     198.725
+         /b1 |   .0028167   .0010453     2.69   0.054    -.0000856     .005719
+------------------------------------------------------------------------------
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 3 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =  1.132397
+Iteration 1:  residual SS =   .719989
+Iteration 2:  residual SS =   .236478
+Iteration 3:  residual SS =  .0909363
+Iteration 4:  residual SS =  .0600919
+Iteration 5:  residual SS =  .0584527
+Iteration 6:  residual SS =  .0583879
+Iteration 7:  residual SS =  .0583837
+Iteration 8:  residual SS =  .0583834
+Iteration 9:  residual SS =  .0583834
+Iteration 10:  residual SS =  .0583834
+Iteration 11:  residual SS =  .0583834
+Iteration 12:  residual SS =  .0583834
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |  2.4997203          2  1.24986015    R-squared     =     0.9772
+    Residual |  .05838341          3  .019461138    Adj R-squared =     0.9620
+-------------+----------------------------------    Root MSE      =   .1395032
+       Total |  2.5581037          5  .511620743    Res. dev.     =  -8.061421
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   15.30789   5.632169     2.72   0.073     -2.61619    33.23196
+         /b1 |   .0108188   .0021451     5.04   0.015     .0039922    .0176455
+------------------------------------------------------------------------------
+
+. nl (lsocr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(10^(-({b1=0.1})/(log(0.5*({b0=2})+(0.25*({b0
+> =2})^2+1)^0.5))*(({b0=2}))*socfr)-1))) if subj == 4 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =  3.793749
+Iteration 1:  residual SS =  1.502765
+Iteration 2:  residual SS =  1.344494
+Iteration 3:  residual SS =  .5058506
+Iteration 4:  residual SS =  .2840519
+Iteration 5:  residual SS =  .2141655
+Iteration 6:  residual SS =  .1853418
+Iteration 7:  residual SS =  .1842089
+Iteration 8:  residual SS =  .1840652
+Iteration 9:  residual SS =  .1840506
+Iteration 10:  residual SS =  .1840489
+Iteration 11:  residual SS =  .1840487
+Iteration 12:  residual SS =  .1840487
+Iteration 13:  residual SS =  .1840487
+Iteration 14:  residual SS =  .1840487
+Iteration 15:  residual SS =  .1840487
+Iteration 16:  residual SS =  .1840487
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |  5.5027197          2  2.75135983    R-squared     =     0.9676
+    Residual |  .18404866          3  .061349552    Adj R-squared =     0.9461
+-------------+----------------------------------    Root MSE      =   .2476884
+       Total |  5.6867683          5  1.13735366    Res. dev.     =   -2.32058
+
+------------------------------------------------------------------------------
+       lsocr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   48.43793   29.41292     1.65   0.198    -45.16712     142.043
+         /b1 |   .0042416   .0013003     3.26   0.047     .0001035    .0083797
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond2.log
+  log type:  text
+ closed on:  26 May 2021, 23:58:43
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond2.log
+  log type:  text
+ opened on:  27 May 2021, 11:10:07
+
+. nl (lfoodr =log10({b0=100})+(-({b1=0}))*exp(-({b2=0})*socfr)) if subj == 1 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =  .0070244
+Iteration 1:  residual SS =  .0029342
+Iteration 2:  residual SS =  .0029335
+Iteration 3:  residual SS =  .0029331
+Iteration 4:  residual SS =  .0029327
+Iteration 5:  residual SS =  .0029324
+Iteration 6:  residual SS =  .0029319
+Iteration 7:  residual SS =  .0029314
+Iteration 8:  residual SS =  .0029309
+Iteration 9:  residual SS =  .0029304
+Iteration 10:  residual SS =  .0029302
+Iteration 11:  residual SS =  .0029297
+Iteration 12:  residual SS =   .002929
+Iteration 13:  residual SS =  .0029281
+Iteration 14:  residual SS =  .0029276
+Iteration 15:  residual SS =  .0029263
+Iteration 16:  residual SS =  .0029253
+Iteration 17:  residual SS =  .0029229
+Iteration 18:  residual SS =  .0029212
+Iteration 19:  residual SS =  .0029212
+Iteration 20:  residual SS =  .0029212
+Iteration 21:  residual SS =  .0029212
+Iteration 22:  residual SS =  .0029212
+Iteration 23:  residual SS =  .0029212
+Iteration 24:  residual SS =  .0029212
+Iteration 25:  residual SS =  .0029212
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |  .00410309          2  .002051543    R-squared     =     0.5841
+    Residual |   .0029212          2  .001460602    Adj R-squared =     0.1683
+-------------+----------------------------------    Root MSE      =   .0382178
+       Total |  .00702429          4  .001756072    Res. dev.     =   -23.0366
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   140.2917   356.9007     0.39   0.732    -1395.328    1675.911
+         /b1 |   -.095934   1.075304    -0.09   0.937    -4.722594    4.530726
+         /b2 |  -.0386206   .3168667    -0.12   0.914    -1.401988    1.324747
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. nl (lfoodr =log10({b0=197.0726})+(-({b1=-9.57e-11}))*exp(-({b2=-.5601971})*socfr)) if subj == 2 & cond =
+> = 2
+(obs = 6)
+
+Iteration 0:  residual SS =  .0573327
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          6
+       Model |  .00042622          2  .000213112    R-squared     =     0.0074
+    Residual |  .05733267          3  .019110889    Adj R-squared =    -0.6544
+-------------+----------------------------------    Root MSE      =   .1382421
+       Total |  .05775889          5  .011551778    Res. dev.     =   -10.8766
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   197.0726   27.59524     7.14   0.006     109.2522     284.893
+         /b1 |  -9.57e-11   .0000348    -0.00   1.000    -.0001108    .0001108
+         /b2 |  -.5602016   11368.93    -0.00   1.000    -36181.57    36180.45
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. nl (lfoodr =log10({b0=100})+(-({b1=0}))*exp(-({b2=0})*socfr)) if subj == 3 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =   .019809
+Iteration 1:  residual SS =  .0173821
+Iteration 2:  residual SS =  .0173811
+Iteration 3:  residual SS =  .0173798
+Iteration 4:  residual SS =  .0173767
+Iteration 5:  residual SS =  .0173719
+Iteration 6:  residual SS =  .0173675
+Iteration 7:  residual SS =  .0173574
+Iteration 8:  residual SS =  .0173474
+Iteration 9:  residual SS =  .0173264
+Iteration 10:  residual SS =  .0173145
+Iteration 11:  residual SS =  .0172668
+Iteration 12:  residual SS =  .0171879
+Iteration 13:  residual SS =  .0169287
+Iteration 14:  residual SS =  .0163495
+Iteration 15:  residual SS =  .0161591
+Iteration 16:  residual SS =  .0159943
+Iteration 17:  residual SS =  .0159477
+Iteration 18:  residual SS =  .0159476
+Iteration 19:  residual SS =  .0158546
+Iteration 20:  residual SS =  .0155995
+Iteration 21:  residual SS =  .0155034
+Iteration 22:  residual SS =  .0154491
+Iteration 23:  residual SS =  .0154355
+Iteration 24:  residual SS =  .0154281
+Iteration 25:  residual SS =  .0154261
+Iteration 26:  residual SS =  .0154252
+Iteration 27:  residual SS =  .0154249
+Iteration 28:  residual SS =  .0154248
+Iteration 29:  residual SS =  .0154248
+Iteration 30:  residual SS =  .0154248
+Iteration 31:  residual SS =  .0154248
+Iteration 32:  residual SS =  .0154248
+Iteration 33:  residual SS =  .0154248
+Iteration 34:  residual SS =  .0154248
+Iteration 35:  residual SS =  .0154248
+Iteration 36:  residual SS =  .0154248
+Iteration 37:  residual SS =  .0154248
+Iteration 38:  residual SS =  .0154248
+Iteration 39:  residual SS =  .0154248
+Iteration 40:  residual SS =  .0154248
+Iteration 41:  residual SS =  .0154248
+Iteration 42:  residual SS =  .0154248
+Iteration 43:  residual SS =  .0154248
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |   .0043841          2  .002192049    R-squared     =     0.2213
+    Residual |   .0154248          2  .007712398    Adj R-squared =    -0.5574
+-------------+----------------------------------    Root MSE      =   .0878203
+       Total |  .01980889          4  .004952223    Res. dev.     =   -14.7167
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |   168.7095   25.74532     6.55   0.023     57.93633    279.4827
+         /b1 |  -.1380807   .3284441    -0.42   0.715    -1.551262      1.2751
+         /b2 |   .5776329   2.019969     0.29   0.802    -8.113593    9.268859
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. nl (lfoodr =log10({b0=100})+(-({b1=-1.92e-12}))*exp(-({b2=-1.141036})*socfr)) if subj == 4 & cond == 2
+(obs = 5)
+
+Iteration 0:  residual SS =  .5726547
+Iteration 1:  residual SS =  .5726547
+Iteration 2:  residual SS =  .5726547
+Iteration 3:  residual SS =  .5726547
+Iteration 4:  residual SS =  .5726547
+Iteration 5:  residual SS =  .5726547
+Iteration 6:  residual SS =  .5726547
+Iteration 7:  residual SS =  .5726547
+Iteration 8:  residual SS =  .5726547
+Iteration 9:  residual SS =  .5726547
+Iteration 10:  residual SS =  .5726547
+Iteration 11:  residual SS =  .5726547
+Iteration 12:  residual SS =  .5726547
+Iteration 13:  residual SS =  .5726547
+Iteration 14:  residual SS =  .5726547
+Iteration 15:  residual SS =  .5726547
+Iteration 16:  residual SS =  .5726547
+Iteration 17:  residual SS =  .5726547
+Iteration 18:  residual SS =  .5726546
+Iteration 19:  residual SS =  .5726546
+Iteration 20:  residual SS =  .5726546
+Iteration 21:  residual SS =  .5726546
+Iteration 22:  residual SS =  .5726546
+Iteration 23:  residual SS =  .5726546
+Iteration 24:  residual SS =  .5726546
+Iteration 25:  residual SS =  .5726546
+Iteration 26:  residual SS =  .5726546
+Iteration 27:  residual SS =  .5726546
+Iteration 28:  residual SS =  .5726546
+Iteration 29:  residual SS =  .5726546
+Iteration 30:  residual SS =  .5726546
+Iteration 31:  residual SS =  .5726546
+Iteration 32:  residual SS =  .5726546
+Iteration 33:  residual SS =  .5726546
+Iteration 34:  residual SS =  .5726546
+Iteration 35:  residual SS =  .5726546
+Iteration 36:  residual SS =  .5726546
+Iteration 37:  residual SS =  .5726546
+Iteration 38:  residual SS =  .5726546
+Iteration 39:  residual SS =  .5726546
+Iteration 40:  residual SS =  .5726546
+Iteration 41:  residual SS =  .5726546
+Iteration 42:  residual SS =  .5726546
+Iteration 43:  residual SS =  .5726546
+Iteration 44:  residual SS =  .5726546
+Iteration 45:  residual SS =  .5726546
+Iteration 46:  residual SS =  .5726546
+Iteration 47:  residual SS =  .5726546
+Iteration 48:  residual SS =  .5726546
+Iteration 49:  residual SS =  .5726546
+Iteration 50:  residual SS =  .5726546
+Iteration 51:  residual SS =  .5726546
+Iteration 52:  residual SS =  .5726546
+Iteration 53:  residual SS =  .5726546
+Iteration 54:  residual SS =  .5726546
+Iteration 55:  residual SS =  .5726546
+Iteration 56:  residual SS =  .5726546
+Iteration 57:  residual SS =  .5726546
+Iteration 58:  residual SS =  .5726546
+Iteration 59:  residual SS =  .5726546
+Iteration 60:  residual SS =  .5726546
+Iteration 61:  residual SS =  .5726546
+Iteration 62:  residual SS =  .5726546
+Iteration 63:  residual SS =  .5726546
+Iteration 64:  residual SS =  .5726546
+Iteration 65:  residual SS =  .5726546
+Iteration 66:  residual SS =  .5726546
+Iteration 67:  residual SS =  .5726546
+Iteration 68:  residual SS =  .5726546
+Iteration 69:  residual SS =  .5726546
+Iteration 70:  residual SS =  .5726546
+Iteration 71:  residual SS =  .5726546
+Iteration 72:  residual SS =  .5726546
+Iteration 73:  residual SS =  .5726546
+Iteration 74:  residual SS =  .5726546
+Iteration 75:  residual SS =  .5726546
+Iteration 76:  residual SS =  .5726546
+Iteration 77:  residual SS =  .5726546
+Iteration 78:  residual SS =  .5726546
+Iteration 79:  residual SS =  .5726546
+Iteration 80:  residual SS =  .5726546
+Iteration 81:  residual SS =  .5726546
+Iteration 82:  residual SS =  .5726546
+Iteration 83:  residual SS =  .5726546
+Iteration 84:  residual SS =  .5726546
+Iteration 85:  residual SS =  .5726546
+Iteration 86:  residual SS =  .5726546
+Iteration 87:  residual SS =  .5726546
+Iteration 88:  residual SS =  .5726546
+Iteration 89:  residual SS =  .5726546
+Iteration 90:  residual SS =  .5726546
+Iteration 91:  residual SS =  .5726546
+Iteration 92:  residual SS =  .5726546
+Iteration 93:  residual SS =  .5726546
+Iteration 94:  residual SS =  .5726546
+Iteration 95:  residual SS =  .5726546
+Iteration 96:  residual SS =  .5726546
+Iteration 97:  residual SS =  .5726546
+Iteration 98:  residual SS =  .5726546
+Iteration 99:  residual SS =  .5726546
+Iteration 100:  residual SS =  .5726546
+Iteration 101:  residual SS =  .5726546
+Iteration 102:  residual SS =  .5726546
+Iteration 103:  residual SS =  .5726546
+Iteration 104:  residual SS =  .5726546
+Iteration 105:  residual SS =  .5726546
+Iteration 106:  residual SS =  .5726546
+Iteration 107:  residual SS =  .5726546
+Iteration 108:  residual SS =  .5726546
+Iteration 109:  residual SS =  .5726546
+Iteration 110:  residual SS =  .5726546
+Iteration 111:  residual SS =  .5726546
+Iteration 112:  residual SS =  .5726546
+Iteration 113:  residual SS =  .5726546
+Iteration 114:  residual SS =  .5726546
+Iteration 115:  residual SS =  .5726546
+Iteration 116:  residual SS =  .5726546
+Iteration 117:  residual SS =  .5726546
+Iteration 118:  residual SS =  .5726546
+Iteration 119:  residual SS =  .5726546
+Iteration 120:  residual SS =  .5726546
+Iteration 121:  residual SS =  .5726546
+Iteration 122:  residual SS =  .5726546
+Iteration 123:  residual SS =  .5726546
+Iteration 124:  residual SS =  .5726546
+Iteration 125:  residual SS =  .5726546
+Iteration 126:  residual SS =  .5726546
+Iteration 127:  residual SS =  .5726546
+Iteration 128:  residual SS =  .5726546
+Iteration 129:  residual SS =  .5726546
+Iteration 130:  residual SS =  .5726546
+Iteration 131:  residual SS =  .5726546
+Iteration 132:  residual SS =  .5726546
+Iteration 133:  residual SS =  .5726546
+Iteration 134:  residual SS =  .5726546
+Iteration 135:  residual SS =  .5726546
+Iteration 136:  residual SS =  .5726546
+Iteration 137:  residual SS =  .5726545
+Iteration 138:  residual SS =  .5726545
+Iteration 139:  residual SS =  .5726545
+Iteration 140:  residual SS =  .5726545
+Iteration 141:  residual SS =  .5726545
+Iteration 142:  residual SS =  .0335948
+Iteration 143:  residual SS =  .0335948
+Iteration 144:  residual SS =  .0335948
+Iteration 145:  residual SS =  .0335948
+Iteration 146:  residual SS =  .0335948
+Iteration 147:  residual SS =  .0335948
+Iteration 148:  residual SS =  .0335948
+Iteration 149:  residual SS =  .0335948
+Iteration 150:  residual SS =  .0335948
+Iteration 151:  residual SS =  .0335948
+Iteration 152:  residual SS =  .0335947
+Iteration 153:  residual SS =  .0335947
+Iteration 154:  residual SS =  .0335947
+Iteration 155:  residual SS =  .0335947
+Iteration 156:  residual SS =  .0077505
+Iteration 157:  residual SS =   .007605
+Iteration 158:  residual SS =   .007605
+Iteration 159:  residual SS =   .007605
+
+
+      Source |      SS            df       MS
+-------------+----------------------------------    Number of obs =          5
+       Model |  .01832318          1  .018323183    R-squared     =     0.7067
+    Residual |  .00760502          3  .002535007    Adj R-squared =     0.6089
+-------------+----------------------------------    Root MSE      =   .0503489
+       Total |  .02592821          4  .006482051    Res. dev.     =  -18.25254
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+         /b0 |    199.732   11.57793    17.25   0.000     162.8858    236.5781
+         /b1 |  -8.15e-10   3.03e-10    -2.69   0.075    -1.78e-09    1.50e-10
+         /b2 |  -1.190015          .        .       .            .           .
+------------------------------------------------------------------------------
+  Parameter b0 taken as constant term in model & ANOVA table
+
+. 
+. reg lfoodr socfr if subj == 1 & cond == 2
+
+      Source |       SS           df       MS      Number of obs   =         5
+-------------+----------------------------------   F(1, 3)         =      4.18
+       Model |  .004087571         1  .004087571   Prob > F        =    0.1336
+    Residual |  .002936719         3  .000978906   R-squared       =    0.5819
+-------------+----------------------------------   Adj R-squared   =    0.4426
+       Total |   .00702429         4  .001756072   Root MSE        =    .03129
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       socfr |   .0052412   .0025649     2.04   0.134    -.0029214    .0134038
+       _cons |   2.239324   .0211817   105.72   0.000     2.171915    2.306734
+------------------------------------------------------------------------------
+
+. reg lfoodr socfr if subj == 2 & cond == 2
+
+      Source |       SS           df       MS      Number of obs   =         6
+-------------+----------------------------------   F(1, 4)         =      0.01
+       Model |  .000191585         1  .000191585   Prob > F        =    0.9137
+    Residual |  .057567304         4  .014391826   R-squared       =    0.0033
+-------------+----------------------------------   Adj R-squared   =   -0.2459
+       Total |  .057758889         5  .011551778   Root MSE        =    .11997
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       socfr |   .0005219    .004523     0.12   0.914     -.012036    .0130797
+       _cons |   2.295393   .0682208    33.65   0.000     2.105982    2.484804
+------------------------------------------------------------------------------
+
+. reg lfoodr socfr if subj == 3 & cond == 2
+
+      Source |       SS           df       MS      Number of obs   =         5
+-------------+----------------------------------   F(1, 3)         =      0.41
+       Model |  .002361171         1  .002361171   Prob > F        =    0.5693
+    Residual |  .017447722         3  .005815907   R-squared       =    0.1192
+-------------+----------------------------------   Adj R-squared   =   -0.1744
+       Total |  .019808894         4  .004952223   Root MSE        =    .07626
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       socfr |  -.0039835   .0062518    -0.64   0.569    -.0238796    .0159126
+       _cons |   2.279049   .0516297    44.14   0.000      2.11474    2.443357
+------------------------------------------------------------------------------
+
+. reg lfoodr socfr if subj == 4 & cond == 2
+
+      Source |       SS           df       MS      Number of obs   =         5
+-------------+----------------------------------   F(1, 3)         =      3.85
+       Model |  .014571083         1  .014571083   Prob > F        =    0.1446
+    Residual |  .011357122         3  .003785707   R-squared       =    0.5620
+-------------+----------------------------------   Adj R-squared   =    0.4160
+       Total |  .025928205         4  .006482051   Root MSE        =    .06153
+
+------------------------------------------------------------------------------
+      lfoodr |      Coef.   Std. Err.      t    P>|t|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+       socfr |   .0098957    .005044     1.96   0.145    -.0061565    .0259478
+       _cons |   2.269365   .0416547    54.48   0.000     2.136802    2.401929
+------------------------------------------------------------------------------
+
+. log close
+      name:  <unnamed>
+       log:  /Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/model sub
+> j cond2.log
+  log type:  text
+ closed on:  27 May 2021, 11:10:46
+----------------------------------------------------------------------------------------------------------
