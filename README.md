@@ -24,9 +24,7 @@ The project materials are organized into the following folders:
 
 * **`/Figure`**: Contains the figures as they appear in the final publication.
 
-* **`/Poster`**: Includes a conference poster summarizing the study's methods and findings.
-
-* **`/Prism`**: Contains GraphPad Prism project files used for creating some of the manuscript figures.
+* **`/Presentation`**: Includes a conference poster and abstracts summarizing the study.
 
 * **`/Stata`**: Includes the `.do` files with the **Stata** code used to fit the nonlinear demand models (`nl` command), validating the results across multiple statistical platforms.
 
