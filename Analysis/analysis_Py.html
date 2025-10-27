@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>A Behavioral-Economic Analysis of Demand for Social and Food Reinforcement in Rats</title>
+<title>Behavioral-Economic Analysis of Demand and Preference</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -58,7 +58,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </style>
 
 
-<script src="analysis_Py_files/libs/clipboard/clipboard.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="analysis_Py_files/libs/clipboard/clipboard.min.js"></script>
 <script src="analysis_Py_files/libs/quarto-html/quarto.js" type="module"></script>
 <script src="analysis_Py_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="analysis_Py_files/libs/quarto-html/popper.min.js"></script>
@@ -69,7 +69,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="analysis_Py_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="analysis_Py_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="analysis_Py_files/libs/bootstrap/bootstrap-81267100e462c21b3d6c0d5bf76a3417.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
 
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -81,7 +113,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">A Behavioral-Economic Analysis of Demand for Social and Food Reinforcement in Rats</h1>
+<h1 class="title">Behavioral-Economic Analysis of Demand and Preference</h1>
 </div>
 
 
@@ -98,12 +130,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>This notebook replicates the own- and cross-price demand curve analyses from the publication:</p>
+<section id="a-python-replication-of-kirkman-et-al.-2022-learning-and-motivation" class="level3">
+<h3 class="anchored" data-anchor-id="a-python-replication-of-kirkman-et-al.-2022-learning-and-motivation">A Python Replication of Kirkman et al.&nbsp;(2022), <em>Learning and Motivation</em></h3>
+<hr>
+</section>
+<section id="project-objective" class="level3">
+<h3 class="anchored" data-anchor-id="project-objective">Project Objective</h3>
+<p>This notebook provides a complete, reproducible Python workflow for the behavioral-economic analyses presented in the publication:</p>
 <blockquote class="blockquote">
 <p>Kirkman, C., Wan, H., &amp; Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. <em>Learning and Motivation</em>, <em>77</em>, 101780. https://doi.org/10.1016/j.lmot.2021.101780</p>
 </blockquote>
-<p>The analysis fits nonlinear and linear models to experimental data to quantify demand for food and social reinforcers in rats. This script uses <code>pandas</code> for data manipulation and <code>scipy</code> for nonlinear model fitting.</p>
-<div id="988b42b8" class="cell" data-execution_count="34">
+<p>The study uses demand curve analysis to quantify the value of food and social reinforcers. It investigates how demand for each reinforcer changes as its own price increases (<strong>own-price elasticity</strong>) and how demand for one reinforcer changes as the price of the <em>other</em> reinforcer increases (<strong>cross-price elasticity</strong>). This allows for a quantitative assessment of whether the reinforcers act as substitutes, complements, or are independent.</p>
+<p><strong>Note on Data:</strong> This analysis requires the raw data file (<code>data with bl mean.csv</code>), assumed to be in a <code>/Data</code> subdirectory.</p>
+</section>
+<section id="analytical-approach" class="level3">
+<h3 class="anchored" data-anchor-id="analytical-approach">Analytical Approach</h3>
+<p>The core of the analysis involves fitting specialized models from behavioral economics to consumption data using <code>scipy.optimize.curve_fit</code>: 1. <strong>Own-Price Demand</strong>: The <strong>Zero-Bounded Exponential (ZBEn) model</strong> is fit to characterize how demand intensity (<span class="math inline">\(Q_0\)</span>) and elasticity (<span class="math inline">\(\alpha\)</span>) change with price. 2. <strong>Cross-Price Demand</strong>: Both <strong>linear</strong> and <strong>nonlinear exponential models</strong> are fit to characterize how consumption of a constant-price reinforcer changes as the price of the alternative reinforcer varies.</p>
+</section>
+<section id="analysis-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-workflow">Analysis Workflow</h3>
+<ol type="1">
+<li><strong>Setup</strong>: Load libraries, define helper functions, and load/prepare the dataset.</li>
+<li><strong>Phase 1 Analysis</strong>: Model own-price demand for food and cross-price demand for social interaction.</li>
+<li><strong>Phase 2 Analysis</strong>: Model own-price demand for social interaction and cross-price demand for food.</li>
+<li><strong>Phase 3 Analysis</strong>: Model own-price demand for both reinforcers when their prices increase concurrently.</li>
+<li><strong>Phase 4 Analysis</strong>: Model own-price demand for food in isolation and compare it to Phase 1.</li>
+</ol>
+<div id="988b42b8" class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> curve_fit</span>
@@ -122,218 +175,530 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.log10(<span class="fl">0.5</span> <span class="op">*</span> x <span class="op">+</span> np.sqrt(<span class="fl">0.25</span> <span class="op">*</span> (x<span class="op">**</span><span class="dv">2</span>) <span class="op">+</span> <span class="dv">1</span>))</span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Load Data ---</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>behav_data <span class="op">=</span> pd.read_csv(<span class="st">"Data/data with bl mean.csv"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>behav_data <span class="op">=</span> pd.read_csv(<span class="st">"data with bl mean.csv"</span>)</span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Add transformed consumption columns for modeling</span></span>
 <span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>behav_data[<span class="st">'foodr_lhs'</span>] <span class="op">=</span> lhs(behav_data[<span class="st">'foodr'</span>])</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>behav_data[<span class="st">'socr_lhs'</span>] <span class="op">=</span> lhs(behav_data[<span class="st">'socr'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="46b9c8ba" class="cell" data-execution_count="35">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Define the behavioral-economic model functions ---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> zbe_model(price, q0, alpha):</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">    Zero-Bounded Exponential (ZBEn) model for own-price demand.</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Note: The function is defined in terms of the transformed `lhs` space.</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lhs(q0) <span class="op">*</span> np.exp(((<span class="op">-</span>alpha) <span class="op">/</span> lhs(q0)) <span class="op">*</span> q0 <span class="op">*</span> price)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_price_exp_model(price, q_alone, i, b):</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">    Exponential cross-price elasticity model.</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co">    Note: This models raw consumption, not the lhs-transformed version.</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.log10(q_alone) <span class="op">+</span> i <span class="op">*</span> np.exp(<span class="op">-</span>b <span class="op">*</span> price)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="64922d90" class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Environment Setup ---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># This cell installs the required Python packages for the analysis.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment and run this cell only if you are setting up a new environment.</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># import sys</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># !{sys.executable} -m pip install pandas numpy scipy</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<section id="phase-1-food-price-varied-social-price-constant" class="level2">
-<h2 class="anchored" data-anchor-id="phase-1-food-price-varied-social-price-constant">Phase 1: Food Price Varied, Social Price Constant</h2>
-<p>In this phase, we analyze own-price demand for food and cross-price demand for social interaction.</p>
-<div id="6501c9d6" class="cell" data-execution_count="36">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Own-Price Food Demand (ZBEn Model) ---</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 1: Own-Price Food Demand (ZBEn Model) ---"</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>zbe_model_obj <span class="op">=</span> Model(zbe_model, independent_vars<span class="op">=</span>[<span class="st">'price'</span>])</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>p1_data <span class="op">=</span> behav_data[behav_data[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">1</span>]</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>results_list_own_p1 <span class="op">=</span> []</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p1_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q0'</span>, value<span class="op">=</span><span class="dv">50</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'alpha'</span>, value<span class="op">=</span><span class="fl">0.0001</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> zbe_model_obj.fit(df[<span class="st">'foodr_lhs'</span>], params, price<span class="op">=</span>df[<span class="st">'foodfr'</span>])</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    results_list_own_p1.append({<span class="st">'subj'</span>: subj_id, <span class="op">**</span>fit_params})</span>
+<div id="46b9c8ba" class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1. SETUP: IMPORTS, FUNCTIONS, AND DATA PREPARATION ---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1.1 Load Libraries ---</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy.optimize <span class="im">import</span> curve_fit</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1.2 Configure Environment ---</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Suppress warnings (e.g., from curve_fit) for a cleaner final report</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Set pandas display options for consistent formatting</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>pd.options.display.float_format <span class="op">=</span> <span class="st">'</span><span class="sc">{:.3f}</span><span class="st">'</span>.<span class="bu">format</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>own_price_food_p1_lmfit <span class="op">=</span> pd.DataFrame(results_list_own_p1)</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(own_price_food_p1_lmfit)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Cross-Price Social Demand (Exponential Model) ---</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Phase 1: Cross-Price Social Demand (Exponential Model) ---"</span>)</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>exp_model_obj <span class="op">=</span> Model(cross_price_exp_model, independent_vars<span class="op">=</span>[<span class="st">'price'</span>])</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>results_list_cross_p1 <span class="op">=</span> []</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p1_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q_alone'</span>, value<span class="op">=</span><span class="dv">100</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'i'</span>, value<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'b'</span>, value<span class="op">=</span><span class="fl">0.01</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> exp_model_obj.fit(df[<span class="st">'socr'</span>], params, price<span class="op">=</span>df[<span class="st">'foodfr'</span>])</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    results_list_cross_p1.append({<span class="st">'subj'</span>: subj_id, <span class="st">'Q_alone'</span>: fit_params[<span class="st">'q_alone'</span>], <span class="st">'I'</span>: fit_params[<span class="st">'i'</span>], <span class="st">'beta'</span>: fit_params[<span class="st">'b'</span>]})</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>cross_price_social_p1_lmfit <span class="op">=</span> pd.DataFrame(results_list_cross_p1)</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cross_price_social_p1_lmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1.3 Define Helper Function ---</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> lhs(x):</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co">    Inverse Hyperbolic Sine (IHS) Transformation.</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co">    Applies the IHS transformation, a log-like function that is defined at zero.</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co">    This is required for the dependent variable in the ZBEn demand model.</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">    Args:</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">        x (float or np.ndarray): A numeric scalar or array.</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="co">    Returns:</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co">        float or np.ndarray: The IHS-transformed value(s).</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.log10(<span class="fl">0.5</span> <span class="op">*</span> x <span class="op">+</span> np.sqrt(<span class="fl">0.25</span> <span class="op">*</span> (x<span class="op">**</span><span class="dv">2</span>) <span class="op">+</span> <span class="dv">1</span>))</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 1.4 Load and Prepare Data ---</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the pre-processed data containing session means.</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>raw_df <span class="op">=</span> pd.read_csv(<span class="st">"data with bl mean.csv"</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Prepare the data for modeling by applying the IHS transformation</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="co"># to the consumption rate columns.</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>analysis_df <span class="op">=</span> raw_df.copy()</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>analysis_df[<span class="st">'food_rate_ihs'</span>] <span class="op">=</span> lhs(analysis_df[<span class="st">'foodr'</span>])</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>analysis_df[<span class="st">'social_rate_ihs'</span>] <span class="op">=</span> lhs(analysis_df[<span class="st">'socr'</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="demand-curve-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="demand-curve-analysis">2. Demand Curve Analysis</h2>
+<p>This section replicates the model fitting in the order presented in the Results section of the published article. Each subsection corresponds to an experimental phase.</p>
+<section id="phase-1-food-price-varied-social-price-constant-fr-1" class="level3">
+<h3 class="anchored" data-anchor-id="phase-1-food-price-varied-social-price-constant-fr-1">Phase 1: Food Price Varied, Social Price Constant (FR 1)</h3>
+<p>In this phase, the price of food was systematically increased across sessions, while the price of social interaction was held constant at a low price (FR 1). This allows us to perform two key analyses:</p>
+<ol type="1">
+<li><strong>Own-Price Demand for Food</strong>: We fit the <strong>Zero-Bounded Exponential (ZBEn) model</strong> to the food consumption data. This analysis quantifies how demand for food changes as its own price increases. We expect to see consumption decrease as price increases.</li>
+<li><strong>Cross-Price Demand for Social Interaction</strong>: We model how consumption of the constant-price social reinforcer changes as the price of food increases. An increase in social consumption as food becomes more expensive would indicate a <strong>substitutable relationship</strong> between the two reinforcers.</li>
+</ol>
+<div id="6501c9d6" class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2.1 Import lmfit and Define Model Functions ---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> lmfit <span class="im">import</span> Model, Parameters</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> zbe_model_func(price, alpha, q0):</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">    Zero-Bounded Exponential (ZBEn) demand model.</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    Models IHS-transformed consumption as a function of price.</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    q0 <span class="op">=</span> <span class="bu">max</span>(q0, <span class="fl">1e-9</span>) <span class="co"># Prevent division by zero</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ihs_q0 <span class="op">=</span> lhs(q0)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ihs_q0 <span class="op">*</span> np.exp((<span class="op">-</span>alpha <span class="op">/</span> ihs_q0) <span class="op">*</span> q0 <span class="op">*</span> price)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cross_price_exp_func(price, beta, q_alone, i):</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">    Exponential cross-price elasticity model from Hursh (2014).</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">    A negative 'i' parameter indicates substitutability.</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.log10(q_alone) <span class="op">+</span> i <span class="op">*</span> np.exp(<span class="op">-</span>beta <span class="op">*</span> price)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2.2 Phase 1 Analysis: Food Price Varied ---</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data for Phase 1</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>phase1_df <span class="op">=</span> analysis_df[analysis_df[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">1</span>].copy()</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fit_lmfit_model(group, model_obj, x_col, y_col, param_config):</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""Helper function to apply an lmfit model to a group."""</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> name, config <span class="kw">in</span> param_config.items():</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        params.add(name, <span class="op">**</span>config)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> model_obj.fit(group[y_col], params, price<span class="op">=</span>group[x_col])</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pd.Series(result.best_values)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Own-Price Demand for Food (ZBEn Model) ---</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 1: Own-Price Food Demand Parameters (ZBEn Model) ---"</span>)</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>zbe_model_obj <span class="op">=</span> Model(zbe_model_func, independent_vars<span class="op">=</span>[<span class="st">'price'</span>])</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>zbe_params_config <span class="op">=</span> {</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>    <span class="st">'alpha'</span>: {<span class="st">'value'</span>: <span class="fl">0.0001</span>, <span class="st">'min'</span>: <span class="dv">0</span>},</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="st">'q0'</span>: {<span class="st">'value'</span>: <span class="dv">50</span>, <span class="st">'min'</span>: <span class="dv">0</span>}</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>own_price_food_p1 <span class="op">=</span> phase1_df.groupby(<span class="st">'subj'</span>).<span class="bu">apply</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>zbe_model_obj,</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'foodfr'</span>,</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'food_rate_ihs'</span>,</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>zbe_params_config</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>display(own_price_food_p1)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Cross-Price Demand for Social Interaction (Exponential Model) ---</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Phase 1: Cross-Price Social Demand Parameters (Exponential Model) ---"</span>)</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>cross_price_model_obj <span class="op">=</span> Model(cross_price_exp_func, independent_vars<span class="op">=</span>[<span class="st">'price'</span>])</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>cross_price_params_config <span class="op">=</span> {</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>    <span class="st">'beta'</span>: {<span class="st">'value'</span>: <span class="fl">0.01</span>, <span class="st">'min'</span>: <span class="dv">0</span>},</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>    <span class="st">'q_alone'</span>: {<span class="st">'value'</span>: <span class="dv">100</span>, <span class="st">'min'</span>: <span class="dv">0</span>},</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>    <span class="st">'i'</span>: {<span class="st">'value'</span>: <span class="dv">1</span>}</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>cross_price_social_p1 <span class="op">=</span> phase1_df.groupby(<span class="st">'subj'</span>).<span class="bu">apply</span>(</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>cross_price_model_obj,</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'foodfr'</span>,</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'socr'</span>,</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>cross_price_params_config</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>display(cross_price_social_p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>--- Phase 1: Own-Price Food Demand (ZBEn Model) ---
-   subj      q0  alpha
-0     1 177.745  0.000
-1     2 260.448  0.000
-2     3 393.347  0.000
-3     4 217.576  0.000
+<pre><code>--- Phase 1: Own-Price Food Demand Parameters (ZBEn Model) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
 
---- Phase 1: Cross-Price Social Demand (Exponential Model) ---
-   subj                                           Q_alone       I  \
-0     1                                        231454.270  31.369   
-1     2                135935571189553077440617644032.000 -63.011   
-2     3 912010838418402909757689809298942069607235584.000 249.541   
-3     4                                     583665967.630  16.609   
 
-              beta  
-0            0.000  
-1 319044590961.900  
-2          248.734  
-3            0.000  </code></pre>
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">alpha</th>
+<th data-quarto-table-cell-role="th">q0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>0.000</td>
+<td>177.745</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>0.000</td>
+<td>260.448</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>0.000</td>
+<td>393.347</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>0.000</td>
+<td>217.576</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+--- Phase 1: Cross-Price Social Demand Parameters (Exponential Model) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">beta</th>
+<th data-quarto-table-cell-role="th">q_alone</th>
+<th data-quarto-table-cell-role="th">i</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>0.000</td>
+<td>231422.032</td>
+<td>31.369</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>319044590961.900</td>
+<td>135935571189553077440617644032.000</td>
+<td>-63.011</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>248.734</td>
+<td>912010838418402909757689809298942069607235584.000</td>
+<td>249.541</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>2808.828</td>
+<td>41900790867313343393169408.000</td>
+<td>-94060.842</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
 </div>
 </section>
-<section id="phase-2-social-price-varied-food-price-constant" class="level2">
-<h2 class="anchored" data-anchor-id="phase-2-social-price-varied-food-price-constant">Phase 2: Social Price Varied, Food Price Constant</h2>
-<p>Here, we analyze own-price demand for social interaction and cross-price demand for food.</p>
-<div id="b6389fdf" class="cell" data-execution_count="37">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 2: Own-Price Social Demand (ZBEn Model) ---"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>p2_data <span class="op">=</span> behav_data[behav_data[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">2</span>]</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>results_list_own_p2 <span class="op">=</span> []</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p2_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q0'</span>, value<span class="op">=</span><span class="dv">50</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'alpha'</span>, value<span class="op">=</span><span class="fl">0.0001</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> zbe_model_obj.fit(df[<span class="st">'socr_lhs'</span>], params, price<span class="op">=</span>df[<span class="st">'socfr'</span>])</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    results_list_own_p2.append({<span class="st">'subj'</span>: subj_id, <span class="op">**</span>fit_params})</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>own_price_social_p2_lmfit <span class="op">=</span> pd.DataFrame(results_list_own_p2)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(own_price_social_p2_lmfit)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Phase 2: Cross-Price Food Demand (Exponential Model) ---"</span>)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>results_list_cross_p2 <span class="op">=</span> []</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p2_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q_alone'</span>, value<span class="op">=</span><span class="dv">10000</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'i'</span>, value<span class="op">=</span><span class="dv">100</span>)</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'b'</span>, value<span class="op">=</span><span class="fl">0.1</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> exp_model_obj.fit(df[<span class="st">'foodr'</span>], params, price<span class="op">=</span>df[<span class="st">'socfr'</span>])</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>    results_list_cross_p2.append({<span class="st">'subj'</span>: subj_id, <span class="st">'Q_alone'</span>: fit_params[<span class="st">'q_alone'</span>], <span class="st">'I'</span>: fit_params[<span class="st">'i'</span>], <span class="st">'beta'</span>: fit_params[<span class="st">'b'</span>]})</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>cross_price_food_p2_lmfit <span class="op">=</span> pd.DataFrame(results_list_cross_p2)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(cross_price_food_p2_lmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>--- Phase 2: Own-Price Social Demand (ZBEn Model) ---
-   subj     q0  alpha
-0     1 36.600  0.004
-1     2 67.848  0.003
-2     3 15.308  0.011
-3     4 48.438  0.004
-
---- Phase 2: Cross-Price Food Demand (Exponential Model) ---
-   subj                                            Q_alone       I   beta
-0     1 48903866479660579142642000455998361332897238701...  15.598 -0.074
-1     2                                       51667831.075 196.441 -0.000
-2     3 15727811058958733523221124004665647997409225195...  55.178  0.437
-3     4 13989955337764378763772905330157635119202573126...  22.842 -0.100</code></pre>
-</div>
-</div>
-</section>
-<section id="phase-3-concurrent-price-increase" class="level2">
-<h2 class="anchored" data-anchor-id="phase-3-concurrent-price-increase">Phase 3: Concurrent Price Increase</h2>
-<p>In this phase, the prices of both reinforcers increased together. We fit own-price demand curves for both food and social interaction.</p>
-<div id="35279b76" class="cell" data-execution_count="38">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 3: Own-Price Food Demand (ZBEn Model) ---"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>p3_data <span class="op">=</span> behav_data[behav_data[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">3</span>]</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>results_list_food_p3 <span class="op">=</span> []</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p3_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q0'</span>, value<span class="op">=</span><span class="dv">50</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'alpha'</span>, value<span class="op">=</span><span class="fl">0.0001</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> zbe_model_obj.fit(df[<span class="st">'foodr_lhs'</span>], params, price<span class="op">=</span>df[<span class="st">'foodfr'</span>])</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    results_list_food_p3.append({<span class="st">'subj'</span>: subj_id, <span class="op">**</span>fit_params})</span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>own_price_food_p3_lmfit <span class="op">=</span> pd.DataFrame(results_list_food_p3)</span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(own_price_food_p3_lmfit)</span>
+<section id="phase-2-social-price-varied-food-price-constant-fr-1" class="level3">
+<h3 class="anchored" data-anchor-id="phase-2-social-price-varied-food-price-constant-fr-1">Phase 2: Social Price Varied, Food Price Constant (FR 1)</h3>
+<p>In this phase, the experimental conditions were reversed: the price of social interaction was systematically increased across sessions, while the price of food was held constant at a low price (FR 1). This allows us to test the other side of the reinforcer interaction:</p>
+<ol type="1">
+<li><strong>Own-Price Demand for Social Interaction</strong>: We fit the <strong>ZBEn model</strong> to the social interaction data to quantify how demand for social access changes as its own price increases.</li>
+<li><strong>Cross-Price Demand for Food</strong>: We model how consumption of the constant-price food reinforcer changes as the price of social interaction increases. If the two reinforcers are independent in this context, we would expect to see little to no change in food consumption.</li>
+</ol>
+<div id="b6389fdf" class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2.3 Phase 2 Analysis: Social Price Varied ---</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data for Phase 2</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>phase2_df <span class="op">=</span> analysis_df[analysis_df[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">2</span>].copy()</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Own-Price Demand for Social Interaction (ZBEn Model) ---</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 2: Own-Price Social Demand Parameters (ZBEn Model) ---"</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>own_price_social_p2 <span class="op">=</span> phase2_df.groupby(<span class="st">'subj'</span>).<span class="bu">apply</span>(</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>zbe_model_obj,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'socfr'</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'social_rate_ihs'</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>zbe_params_config</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>display(own_price_social_p2)</span>
 <span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Phase 3: Own-Price Social Demand (ZBEn Model) ---"</span>)</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>results_list_social_p3 <span class="op">=</span> []</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p3_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q0'</span>, value<span class="op">=</span><span class="dv">50</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'alpha'</span>, value<span class="op">=</span><span class="fl">0.0001</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> zbe_model_obj.fit(df[<span class="st">'socr_lhs'</span>], params, price<span class="op">=</span>df[<span class="st">'socfr'</span>])</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    results_list_social_p3.append({<span class="st">'subj'</span>: subj_id, <span class="op">**</span>fit_params})</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>own_price_social_p3_lmfit <span class="op">=</span> pd.DataFrame(results_list_social_p3)</span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(own_price_social_p3_lmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Cross-Price Demand for Food (Exponential Model) ---</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">--- Phase 2: Cross-Price Food Demand Parameters (Exponential Model) ---"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: Initial values are adjusted based on the original code for better convergence.</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>cross_price_food_params_config <span class="op">=</span> {</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">'beta'</span>: {<span class="st">'value'</span>: <span class="fl">0.1</span>},</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    <span class="st">'q_alone'</span>: {<span class="st">'value'</span>: <span class="dv">10000</span>},</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="st">'i'</span>: {<span class="st">'value'</span>: <span class="dv">100</span>}</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>cross_price_food_p2 <span class="op">=</span> phase2_df.groupby(<span class="st">'subj'</span>).<span class="bu">apply</span>(</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>cross_price_model_obj,</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'socfr'</span>,</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'foodr'</span>,</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>cross_price_food_params_config</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>display(cross_price_food_p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>--- Phase 3: Own-Price Food Demand (ZBEn Model) ---
-   subj      q0  alpha
-0     2 159.777  0.000
-1     3 195.924  0.000
+<pre><code>--- Phase 2: Own-Price Social Demand Parameters (ZBEn Model) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
 
---- Phase 3: Own-Price Social Demand (ZBEn Model) ---
-   subj     q0  alpha
-0     2 64.046  0.001
-1     3 55.452  0.005</code></pre>
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">alpha</th>
+<th data-quarto-table-cell-role="th">q0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>0.004</td>
+<td>36.600</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>0.003</td>
+<td>67.848</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>0.011</td>
+<td>15.308</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>0.004</td>
+<td>48.438</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+--- Phase 2: Cross-Price Food Demand Parameters (Exponential Model) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">beta</th>
+<th data-quarto-table-cell-role="th">q_alone</th>
+<th data-quarto-table-cell-role="th">i</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>-0.074</td>
+<td>48903725672879118247209911232216662836371682503...</td>
+<td>15.598</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>-0.000</td>
+<td>51667840.729</td>
+<td>196.441</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>0.437</td>
+<td>15727811085874138695788032088721050081728706810...</td>
+<td>55.178</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>4</td>
+<td>-0.100</td>
+<td>13989955163120218782379878852813264451657508803...</td>
+<td>22.842</td>
+</tr>
+</tbody>
+</table>
+
+</div>
 </div>
 </div>
 </section>
-<section id="phase-4-food-price-varied-alone" class="level2">
-<h2 class="anchored" data-anchor-id="phase-4-food-price-varied-alone">Phase 4: Food Price Varied (Alone)</h2>
-<p>In this final phase, food price was varied without a concurrent social alternative. This allows for a direct comparison of food demand elasticity in the presence versus absence of a substitute.</p>
-<div id="61ed069a" class="cell" data-execution_count="39">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 4: Own-Price Food Demand (ZBEn Model, No Social Alternative) ---"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>p4_data <span class="op">=</span> behav_data[behav_data[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">4</span>]</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>results_list_p4 <span class="op">=</span> []</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> subj_id, df <span class="kw">in</span> p4_data.groupby(<span class="st">'subj'</span>):</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    params <span class="op">=</span> Parameters()</span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'q0'</span>, value<span class="op">=</span><span class="dv">50</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    params.add(<span class="st">'alpha'</span>, value<span class="op">=</span><span class="fl">0.0001</span>, <span class="bu">min</span><span class="op">=</span><span class="dv">0</span>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    result <span class="op">=</span> zbe_model_obj.fit(df[<span class="st">'foodr_lhs'</span>], params, price<span class="op">=</span>df[<span class="st">'foodfr'</span>])</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    fit_params <span class="op">=</span> result.best_values</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    results_list_p4.append({<span class="st">'subj'</span>: subj_id, <span class="op">**</span>fit_params})</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>own_price_food_p4_lmfit <span class="op">=</span> pd.DataFrame(results_list_p4)</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(own_price_food_p4_lmfit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="phase-3-concurrent-price-increase" class="level3">
+<h3 class="anchored" data-anchor-id="phase-3-concurrent-price-increase">Phase 3: Concurrent Price Increase</h3>
+<p>In this phase, the prices of both food and social reinforcers were increased together across sessions. This allows for a direct, within-subject comparison of the <strong>own-price demand</strong> for each reinforcer when both are becoming progressively more expensive.</p>
+<p>We again fit the <strong>ZBEn model</strong> to the consumption data for each reinforcer separately. This analysis helps determine which reinforcer retains its value more effectively under escalating costs. Note that only two subjects (Rats 4 and 6) completed this phase of the experiment.</p>
+<div id="35279b76" class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2.4 Phase 3 Analysis: Concurrent Price Increase ---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data for Phase 3</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>phase3_df <span class="op">=</span> analysis_df[analysis_df[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">3</span>].copy()</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># To avoid repeating code, we'll transform the data from wide to long format.</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co"># This allows us to fit models for both reinforcer types in a single pipeline.</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>phase3_long_df <span class="op">=</span> phase3_df.melt(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    id_vars<span class="op">=</span>[<span class="st">'subj'</span>, <span class="st">'foodfr'</span>, <span class="st">'socfr'</span>],</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    value_vars<span class="op">=</span>[<span class="st">'food_rate_ihs'</span>, <span class="st">'social_rate_ihs'</span>],</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    var_name<span class="op">=</span><span class="st">'reinforcer_type'</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    value_name<span class="op">=</span><span class="st">'consumption_ihs'</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a 'price' column corresponding to each reinforcer type</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>phase3_long_df[<span class="st">'price'</span>] <span class="op">=</span> np.where(</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    phase3_long_df[<span class="st">'reinforcer_type'</span>] <span class="op">==</span> <span class="st">'food_rate_ihs'</span>,</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    phase3_long_df[<span class="st">'foodfr'</span>],</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    phase3_long_df[<span class="st">'socfr'</span>]</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Fit Own-Price Demand Models for Both Reinforcers ---</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 3: Own-Price Demand Parameters (ZBEn Model) ---"</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>own_price_p3 <span class="op">=</span> phase3_long_df.groupby([<span class="st">'subj'</span>, <span class="st">'reinforcer_type'</span>]).<span class="bu">apply</span>(</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>zbe_model_obj,</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'price'</span>,</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'consumption_ihs'</span>,</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>zbe_params_config</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>display(own_price_p3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>--- Phase 4: Own-Price Food Demand (ZBEn Model, No Social Alternative) ---
-   subj      q0  alpha
-0     2 273.148  0.000
-1     3 193.248  0.000</code></pre>
+<pre><code>--- Phase 3: Own-Price Demand Parameters (ZBEn Model) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">reinforcer_type</th>
+<th data-quarto-table-cell-role="th">alpha</th>
+<th data-quarto-table-cell-role="th">q0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2</td>
+<td>food_rate_ihs</td>
+<td>0.000</td>
+<td>159.777</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>2</td>
+<td>social_rate_ihs</td>
+<td>0.001</td>
+<td>64.046</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>3</td>
+<td>food_rate_ihs</td>
+<td>0.000</td>
+<td>195.924</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>3</td>
+<td>social_rate_ihs</td>
+<td>0.005</td>
+<td>55.452</td>
+</tr>
+</tbody>
+</table>
+
 </div>
 </div>
+</div>
+</section>
+<section id="phase-4-food-demand-in-isolation-no-social-alternative" class="level3">
+<h3 class="anchored" data-anchor-id="phase-4-food-demand-in-isolation-no-social-alternative">Phase 4: Food Demand in Isolation (No Social Alternative)</h3>
+<p>In this final phase, the demand for food was assessed when it was the only available reinforcer. The price of food was systematically increased across sessions, just as in Phase 1, but with the social interaction option removed entirely.</p>
+<p>This design allows for a direct comparison of the <strong>own-price demand for food</strong> in two different economic contexts: with a potential substitute available (Phase 1) versus without one (Phase 4). By comparing the demand parameters (<span class="math inline">\(\alpha\)</span> and <span class="math inline">\(Q_0\)</span>) between these phases, we can quantify how the presence of a social alternative impacts the value of food. Note that only two subjects (Rats 4 and 6) completed this phase.</p>
+<div id="61ed069a" class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- 2.5 Phase 4 Analysis: Food Price Varied in Isolation ---</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter data for Phase 4</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>phase4_df <span class="op">=</span> analysis_df[analysis_df[<span class="st">'cond'</span>] <span class="op">==</span> <span class="dv">4</span>].copy()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Fit Own-Price Demand Model for Food ---</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"--- Phase 4: Own-Price Food Demand Parameters (ZBEn Model, No Social Alternative) ---"</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>own_price_food_p4 <span class="op">=</span> phase4_df.groupby(<span class="st">'subj'</span>).<span class="bu">apply</span>(</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    fit_lmfit_model,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    model_obj<span class="op">=</span>zbe_model_obj,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    x_col<span class="op">=</span><span class="st">'foodfr'</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    y_col<span class="op">=</span><span class="st">'food_rate_ihs'</span>,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    param_config<span class="op">=</span>zbe_params_config</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>).reset_index()</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>display(own_price_food_p4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--- Phase 4: Own-Price Food Demand Parameters (ZBEn Model, No Social Alternative) ---</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">subj</th>
+<th data-quarto-table-cell-role="th">alpha</th>
+<th data-quarto-table-cell-role="th">q0</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>2</td>
+<td>0.000</td>
+<td>273.148</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>3</td>
+<td>0.000</td>
+<td>193.248</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
 </section>
 
 </main>
