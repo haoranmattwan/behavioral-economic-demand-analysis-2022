@@ -30,12 +30,11 @@ A core feature of this repository is the validation of the nonlinear model fitti
 
 ## Methodological Approach
 
-This project showcases a comprehensive computational modeling workflow for experimental data, highlighting the following skills:
+The analysis applies a behavioral-economic framework to quantify reinforcer value by fitting specialized nonlinear models to consumption data using nonlinear least-squares:
 
-* **Nonlinear Demand Curve Modeling**: The core of the analysis is the application of specialized models from behavioral economics, fit using nonlinear least-squares:
-    * **Own-Price Demand**: The **Zero-Bounded Exponential (ZBEn) model** was used to characterize demand intensity ($Q_0$) and elasticity ($\alpha$).
-    * **Cross-Price Demand**: Both a **linear model** and **Hursh's (2014) exponential cross-price model** were used to quantify the interaction between the two goods.
-* **Cross-Platform Validation**: The entire model-fitting process was successfully replicated across R, Python, and Stata. This rigorous cross-validation ensures the stability of the parameter estimates and demonstrates proficiency across multiple major data analysis environments.
+* **Own-Price Demand**: The **Zero-Bounded Exponential (ZBEn) model** was fit to characterize demand intensity ($Q_0$) and elasticity ($\alpha$) as a function of a good's own price.
+* **Cross-Price Demand**: Both a **linear model** and **Hursh's (2014) exponential cross-price model** were used to quantify the interaction between the two goods (i.e., substitutability or complementarity).
+* **Cross-Platform Validation**: To ensure the robustness of the parameter estimates, the entire model-fitting process was replicated across three major statistical platforms: R (`minpack.lm`), Python (`lmfit`), and Stata (`nl`).
 
 ---
 
