@@ -77,7 +77,7 @@ analysis_data <- raw_data |>
   # rename(food_rate = foodr, social_rate = socr) |>
   mutate(
     food_rate_ihs = lhs(foodr),   # IHS transformed food consumption rate
-    social_rate_ihs = lhs(socr) # IHS transformed social consumption rate
+    social_rate_ihs = lhs(socr)   # IHS transformed social consumption rate
   )
 ```
 
