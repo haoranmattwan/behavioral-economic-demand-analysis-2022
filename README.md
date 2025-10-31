@@ -5,7 +5,7 @@ This repository contains the complete, reproducible analysis scripts and support
 
 > Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation*, *77*, 101780. https://doi.org/10.1016/j.lmot.2021.101780
 
-**Note on Data:** The data for this study can be requested from me or from my coauthors, Cyrus Kirkman and Tim Hackenberg. For a fully reproducible portfolio, it is recommended to include the data file in the repository (e.g., in a `/Data` folder).
+**Note on Data:** The data for this study can be requested from me or from my coauthors, Cyrus Kirkman and Tim Hackenberg.
 
 ---
 
