@@ -1,4 +1,5 @@
-use "/Users/mattwan/Google Drive/Academic/Social Research - 2017/RatPrice/Stata modeling/data.dta"
+* Run from the repository root so this relative path resolves correctly.
+use "Stata/dataset/data.dta", clear
 
 nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(exp(-({b1=0.1})/(log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 1 & cond == 1
 nl (lfoodr = log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5)*(1+(exp(-({b1=0.1})/(log10(0.5*({b0=2})+(0.25*({b0=2})^2+1)^0.5))*(({b0=2}))*foodfr)-1))) if subj == 2 & cond == 1

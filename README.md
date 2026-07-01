@@ -1,64 +1,108 @@
-# Behavioral-Economic Demand Analysis of Qualitatively Different Goods
-### An R, Python, and Stata Replication of Kirkman et al. (2022)
+# Demand and Preference for Social and Food Reinforcement in Rats
 
-This repository contains the complete, reproducible analysis scripts and supporting materials for the peer-reviewed publication:
+[![Published in Learning and Motivation](https://img.shields.io/badge/Article-Learning%20and%20Motivation-1f5a94)](https://doi.org/10.1016/j.lmot.2021.101780)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.lmot.2021.101780-5b3f8c)](https://doi.org/10.1016/j.lmot.2021.101780)
+[![Code license: MIT](https://img.shields.io/badge/Code%20license-MIT-2f6b4f)](LICENSE)
 
-> Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation*, *77*, 101780. https://doi.org/10.1016/j.lmot.2021.101780
+Reproducible research materials for:
 
-**Note on Data:** The data for this study can be requested from me or from my coauthors, Cyrus Kirkman and Tim Hackenberg.
+> Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation, 77*, 101780. https://doi.org/10.1016/j.lmot.2021.101780
 
----
+## Research question
 
-## Project Objective
+How does the price of one reinforcer affect demand for another? This study used a behavioral-economic framework to compare rats' demand for food and social interaction. Own-price and cross-price analyses test whether the two outcomes function as substitutes, complements, or independent goods under different experimental conditions.
 
-The goal of this project is to apply a behavioral-economic framework to quantify the value of two qualitatively different goods (food and social interaction). The analysis demonstrates how to model consumption as a function of price to determine **own-price elasticity** and **cross-price elasticity**, allowing for a quantitative assessment of whether the goods function as economic substitutes, complements, or are independent.
+## Analytical approach
 
-A core feature of this repository is the validation of the nonlinear model fitting process across three major statistical platforms—**R**, **Python**, and **Stata**—demonstrating the robustness of the findings and technical versatility.
+- **Own-price demand:** The zero-bounded exponential (ZBEn) model estimates demand intensity (Q₀) and elasticity (α).
+- **Cross-price demand:** Linear and exponential models estimate how consumption of a constant-price reinforcer changes as the alternative becomes more costly.
+- **Computational reproducibility:** Parallel R, Python, and Stata implementations make the model specifications and parameter estimates easier to inspect and reproduce.
 
-## Repository Contents
+The repository is a computational companion to the article. The article remains the authoritative source for the study design, inferential claims, and interpretation.
 
-| File / Folder | Description |
-| :--- | :--- |
-| **`/Analysis/`** | Contains the primary scripts that replicate all findings in the paper. |
-| `analysis.qmd` | A Quarto document with the complete **R** workflow, using `minpack.lm` for model fitting. |
-| `analysis.ipynb` | A Jupyter Notebook providing a **Python** translation of the analysis, using `lmfit`. |
-| **`/Figure/`** | All figures as they appear in the final publication. |
-| **`/Presentation/`** | A conference poster and abstracts summarizing the research. |
-| **`/Stata/`** | Contains `.do` files with the complete **Stata** workflow, using the `nl` command for validation. |
+## Repository guide
 
----
+| Location | Contents |
+| --- | --- |
+| [`Analysis/analysis_R.qmd`](Analysis/analysis_R.qmd) | Annotated R/Quarto analysis |
+| [`Analysis/analysis_R.html`](Analysis/analysis_R.html) | Rendered R analysis |
+| [`Analysis/analysis_Py.ipynb`](Analysis/analysis_Py.ipynb) | Annotated Python/Jupyter analysis |
+| [`Analysis/analysis_Py.html`](Analysis/analysis_Py.html) | Rendered Python analysis |
+| [`Analysis/demand_models.py`](Analysis/demand_models.py) | Dependency-light Python implementations of the published demand models |
+| [`Stata/code/`](Stata/code) | Stata model specifications for condition-level and subject-level analyses |
+| [`Stata/dataset/`](Stata/dataset) | Stata analysis datasets |
+| [`Figure/`](Figure) | Publication figures and editable source files |
+| [`Presentation/`](Presentation) | Conference poster, presentation, and abstracts |
+| [`renv.lock`](renv.lock) | Locked R package environment |
+| [`requirements.txt`](requirements.txt) | Pinned Python environment |
 
-## Methodological Approach
+## Reproduce the analyses
 
-The analysis applies a behavioral-economic framework to quantify reinforcer value by fitting specialized nonlinear models to consumption data using nonlinear least-squares:
+Clone the repository and run all commands from its root directory.
 
-* **Own-Price Demand**: The **Zero-Bounded Exponential (ZBEn) model** was fit to characterize demand intensity ($Q_0$) and elasticity ($\alpha$) as a function of a good's own price.
-* **Cross-Price Demand**: Both a **linear model** and **Hursh's (2014) exponential cross-price model** were used to quantify the interaction between the two goods (i.e., substitutability or complementarity).
-* **Cross-Platform Validation**: To ensure the robustness of the parameter estimates, the entire model-fitting process was replicated across three major statistical platforms: R (`minpack.lm`), Python (`lmfit`), and Stata (`nl`).
+### R
 
----
+The R workflow was developed with R 4.4.1. Install [Quarto](https://quarto.org/), restore the package environment, and render the analysis:
 
-## How to Reproduce This Analysis
+```r
+install.packages("renv")
+renv::restore()
+```
 
-First, obtain the data file (`data with bl mean.csv`) and place it in a `/Data` subdirectory within the project folder. Then, set up the appropriate software environment.
+```bash
+cd Analysis
+quarto render analysis_R.qmd
+```
 
-### R Environment (`/Analysis/analysis.qmd`)
+### Python
 
-* **Required Packages**: `readr`, `dplyr`, `minpack.lm`.
-* **Installation**:
-    ```R
-    install.packages(c("readr", "dplyr", "minpack.lm"))
-    ```
+Create an isolated environment and install the pinned dependencies:
 
-### Python Environment (`/Analysis/analysis.ipynb`)
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+cd Analysis
+jupyter lab analysis_Py.ipynb
+```
 
-* **Required Packages**: `pandas`, `numpy`, `scipy`, `lmfit`.
-* **Installation**:
-    ```bash
-    pip install pandas numpy scipy lmfit
-    ```
+### Stata
 
-### Stata Environment (`/Stata/*.do`)
+The Stata scripts use repository-relative paths. With the repository root as Stata's working directory, run:
 
-* **Required Software**: A licensed version of Stata.
-* **Execution**: The `.do` files can be run directly within the Stata console after updating the file path to the data in the first line of each script.
+```stata
+do "Stata/code/model mean.do"
+do "Stata/code/model subj cond1.do"
+do "Stata/code/model subj cond2.do"
+do "Stata/code/model subj cond3.do"
+do "Stata/code/model subj cond4.do"
+```
+
+## Data availability
+
+The version-controlled Stata datasets support inspection of the Stata analyses. The R and Python workflows use the processed file `data with bl mean.csv`; this file is not part of the public Git history and may be requested from the authors. See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for the repository's data inventory and access details.
+
+This status is stated explicitly to distinguish transparent documentation from full public-data availability. If the processed data are deposited in a stable repository later, add the archive DOI and checksum here.
+
+## Open-science practices
+
+- Human-readable analysis notebooks are provided alongside rendered outputs.
+- R and Python dependencies are recorded for environment reconstruction.
+- Equivalent model specifications are available across three statistical platforms.
+- The repository includes machine-readable citation metadata in [`CITATION.cff`](CITATION.cff).
+- Contributions and reproducibility reports are welcome under [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+## Citation
+
+Please cite the peer-reviewed article when using the study's methods, results, or materials. GitHub's **Cite this repository** menu can read the included citation metadata.
+
+```text
+Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic
+analysis of demand and preference for social and food reinforcement in rats.
+Learning and Motivation, 77, 101780.
+https://doi.org/10.1016/j.lmot.2021.101780
+```
+
+## License
+
+Code in this repository is available under the [MIT License](LICENSE). The published article, figures, presentations, datasets, and third-party materials may be subject to separate copyright or reuse terms; the MIT License should not be interpreted as applying to those materials unless explicitly stated.

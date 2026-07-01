@@ -1,295 +1,494 @@
 ---
-title: "Behavioral-Economic Analysis of Demand and Preference"
-subtitle: "An R Replication of Kirkman et al. (2022), Learning and Motivation"
-author: "Haoran (Matt) Wan"
-date: "today"
-format: 
+title: "Demand for Social and Food Reinforcement in Rats"
+subtitle: "Transparent R reproduction of Kirkman, Wan, and Hackenberg (2022)"
+author: "Haoran Wan"
+date: last-modified
+format:
   html:
     toc: true
-    code-fold: false
+    toc-depth: 3
+    code-fold: true
+    code-summary: "Show analysis code"
     self-contained: true
     theme: cosmo
-    mainfont: "Garamond"
+    smooth-scroll: true
 execute:
   warning: false
   message: false
 engine: knitr
 ---
 
-## Project Objective
+## Purpose and scope
 
-This document provides the complete R code to replicate the behavioral-economic analyses from the publication:
+This report reproduces the session-level demand analyses reported in:
 
-> Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation*, *77*, 101780. https://doi.org/10.1016/j.lmot.2021.101780
+> Kirkman, C., Wan, H., & Hackenberg, T. D. (2022). A behavioral-economic analysis of demand and preference for social and food reinforcement in rats. *Learning and Motivation, 77*, 101780. [https://doi.org/10.1016/j.lmot.2021.101780](https://doi.org/10.1016/j.lmot.2021.101780)
 
-The study uses demand curve analysis to quantify the value of food and social reinforcers for rats. It investigates how demand for each reinforcer changes as its own price increases (**own-price elasticity**) and how demand for one reinforcer changes as the price of the *other* reinforcer increases (**cross-price elasticity**). This allows for a quantitative assessment of whether the reinforcers act as substitutes, complements, or are independent.
+The report is a computational companion to the article, not a substitute for it. The article is the scientific reference for the experimental procedure, animal-care oversight, theoretical rationale, and interpretation. These analyses re-estimate the published models from the processed session-level data and make the transformations, fit statistics, and limitations explicit.
 
-## Analytical Approach
+### Study design
 
-The core of the analysis involves fitting specialized models from behavioral economics to consumption data (reinforcers earned per session) plotted against price (Fixed Ratio requirement):
+Four focal female Sprague-Dawley rats (R2, R4, R6, and R8) chose between a food pellet and 10 seconds of social access to a familiar partner. Fixed-ratio (FR) prices changed geometrically across sessions.
 
-1.  **Own-Price Demand**: The **Zero-Bounded Exponential (ZBEn) model** is fit using nonlinear least-squares to characterize how demand intensity ($Q_0$) and elasticity ($\alpha$) change with price.
-2.  **Cross-Price Demand**: Both **linear** and **nonlinear exponential models** are fit to characterize how consumption of a constant-price reinforcer changes as the price of the alternative reinforcer varies.
+| Phase | Price manipulation | Primary question | Rats |
+|---|---|---|---|
+| 1 | Food FR increased; social FR = 1 | Food own-price demand and social cross-price demand | R2, R4, R6, R8 |
+| 2 | Social FR increased; food FR = 1 | Social own-price demand and food cross-price demand | R2, R4, R6, R8 |
+| 3 | Food and social FR increased together | Direct comparison of food and social own-price demand | R4, R6 |
+| 4 | Food FR increased; no social option | Food demand without a concurrent social alternative | R4, R6 |
 
-## Analysis Workflow
+The analyses are descriptive model reproductions. The small number of focal rats, especially in Phases 3 and 4, does not support population-level confirmatory inference.
 
-1.  **Setup**: Load R packages, define helper functions (like the IHS transformation), and load/prepare the dataset.
-2.  **Phase 1 Analysis**: Model own-price demand for food and cross-price demand for social interaction when the food price increases.
-3.  **Phase 2 Analysis**: Model own-price demand for social interaction and cross-price demand for food when the social price increases.
-4.  **Phase 3 Analysis**: Model own-price demand for both food and social interaction when both prices increase concurrently.
-5.  **Phase 4 Analysis**: Model own-price demand for food when no social alternative is present and compare it to Phase 1 results.
-
----
-
-## 1. Setup: Load Packages, Define Functions, and Prepare Data
-
-This section loads the required R packages, defines the Inverse Hyperbolic Sine (IHS) transformation needed for the ZBEn model, and loads the processed dataset.
+## Reproducibility setup
 
 ```{r setup}
-# --- 1.1 Load Required Packages ---
-library(readr)      # For reading CSV files
-library(dplyr)      # For data manipulation
-library(minpack.lm) # For robust non-linear least squares (nlsLM)
+library(knitr)
+library(minpack.lm)
 
-# --- 1.2 Define Helper Function ---
+options(
+  digits = 5,
+  scipen = 4,
+  stringsAsFactors = FALSE
+)
 
-#' Inverse Hyperbolic Sine (IHS) Transformation
-#'
-#' Applies the IHS transformation, a log-like function defined at zero,
-#' required for the dependent variable in the ZBEn demand model.
-#'
-#' @param x A numeric vector or scalar.
-#' @return The IHS-transformed value(s).
-lhs <- function(x) {
-  log10(0.5 * x + sqrt(0.25 * (x^2) + 1))
+data_path <- "data with bl mean.csv"
+stopifnot(file.exists(data_path))
+
+dat <- read.csv(data_path, fileEncoding = "UTF-8-BOM", check.names = FALSE)
+
+required_columns <- c(
+  "cond", "subj", "socfr", "socr", "foodfr", "foodr"
+)
+missing_columns <- setdiff(required_columns, names(dat))
+if (length(missing_columns) > 0) {
+  stop("Missing required columns: ", paste(missing_columns, collapse = ", "))
 }
 
-# --- 1.3 Load and Prepare Data ---
-# Load the pre-processed data containing session means.
-# Assumes the file is in a subdirectory named 'Data'.
-raw_data <- read.csv("data with bl mean.csv")
+stopifnot(
+  all(dat$cond %in% 1:4),
+  all(dat$subj %in% 1:4),
+  all(dat$foodfr > 0),
+  all(dat$foodr >= 0),
+  all(dat$socr[dat$cond != 4] >= 0)
+)
 
-# Prepare the data for modeling:
-# - Rename columns for clarity (optional, but good practice)
-# - Apply the IHS transformation to the consumption rate columns
-analysis_data <- raw_data |>
-  # Example renaming (adjust based on actual column names if needed):
-  # rename(food_rate = foodr, social_rate = socr) |>
-  mutate(
-    food_rate_ihs = lhs(foodr),   # IHS transformed food consumption rate
-    social_rate_ihs = lhs(socr)   # IHS transformed social consumption rate
+rat_lookup <- c("1" = 2L, "2" = 4L, "3" = 6L, "4" = 8L)
+dat$rat <- unname(rat_lookup[as.character(dat$subj)])
+
+phase_description <- c(
+  "1" = "Food price varied; social FR 1",
+  "2" = "Social price varied; food FR 1",
+  "3" = "Food and social prices varied",
+  "4" = "Food price varied; no social option"
+)
+
+cat("Input:", data_path, "\n")
+cat("Rows:", nrow(dat), "| Columns:", ncol(dat), "\n")
+cat("MD5:", unname(tools::md5sum(data_path)), "\n")
+```
+
+The processed input contains one row per rat, phase, and analyzed FR price after baseline aggregation. Internal subject codes 1-4 map to the published labels R2, R4, R6, and R8.
+
+```{r data-audit}
+audit_rows <- do.call(
+  rbind,
+  lapply(split(dat, interaction(dat$cond, dat$rat, drop = TRUE)), function(g) {
+    phase <- unique(g$cond)
+    price <- if (phase == 2) g$socfr else g$foodfr
+    data.frame(
+      Phase = phase,
+      Rat = paste0("R", unique(g$rat)),
+      `Analyzed prices` = paste(price, collapse = ", "),
+      `Rows` = nrow(g),
+      check.names = FALSE
+    )
+  })
+)
+audit_rows <- audit_rows[order(audit_rows$Phase, audit_rows$Rat), ]
+rownames(audit_rows) <- NULL
+kable(audit_rows, align = c("c", "c", "l", "c"), caption = "Analysis input by phase and rat")
+```
+
+## Models and estimands
+
+### Own-price demand
+
+The normalized zero-bounded exponential (ZBEn) model accommodates sessions with zero consumption:
+
+$$
+\operatorname{IHS}(Q_A) = \operatorname{IHS}(Q_0)
+\exp\left[-\frac{\alpha}{\operatorname{IHS}(Q_0)}Q_0P_A\right],
+$$
+
+where
+
+$$
+\operatorname{IHS}(Q) = \log_{10}\left(0.5Q + \sqrt{0.25Q^2 + 1}\right).
+$$
+
+$Q_0$ is estimated consumption at zero price and $\alpha$ is sensitivity to price. Following the article, essential value is $EV = 1/(100\alpha)$, and $P_{max}$ is the price at which expenditure is maximal. The reported ZBEn $R^2$ reproduces GraphPad's uncentered definition, $1 - SSE/\sum y^2$, on the IHS scale; it should not be read as the conventional proportion of centered variance explained.
+
+### Cross-price demand
+
+Cross-price analyses use $\log_{10}$ consumption of the fixed-price reinforcer. This transformation is necessary to reproduce Tables 3 and 4 of the article.
+
+The linear model is
+
+$$
+\log_{10}(Q_B) = \kappa P_A + \mu.
+$$
+
+A positive $\kappa$ indicates substitution, a negative $\kappa$ indicates complementarity, and a value near zero indicates little systematic interaction.
+
+The exponential model is
+
+$$
+\log_{10}(Q_B) = \log_{10}(Q_{alone}) + I\exp(-\beta P_A).
+$$
+
+A negative interaction term $I$ is consistent with substitution; a positive term is consistent with complementarity. The article emphasizes that these relations are context-dependent, not intrinsic properties of the reinforcers.
+
+```{r model-functions}
+ihs10 <- function(q) {
+  log10(0.5 * q + sqrt(0.25 * q^2 + 1))
+}
+
+inv_ihs10 <- function(z) {
+  2 * sinh(log(10) * z)
+}
+
+zben_ihs <- function(price, Q0, alpha) {
+  q0_ihs <- ihs10(Q0)
+  q0_ihs * exp((-alpha / q0_ihs) * Q0 * price)
+}
+
+zben_quantity <- function(price, Q0, alpha) {
+  inv_ihs10(zben_ihs(price, Q0, alpha))
+}
+
+calculate_pmax <- function(Q0, alpha, observed_price) {
+  rate <- alpha * Q0 / ihs10(Q0)
+  slope_equation <- function(price) {
+    1 - price * log(10) * alpha * Q0 * exp(-rate * price)
+  }
+  price_grid <- exp(seq(log(1e-6), log(max(observed_price) * 100), length.out = 10000))
+  values <- slope_equation(price_grid)
+  crossing <- which(values[-length(values)] * values[-1] <= 0)[1]
+  if (is.na(crossing)) return(NA_real_)
+  uniroot(slope_equation, c(price_grid[crossing], price_grid[crossing + 1]))$root
+}
+
+fit_zben <- function(g, price_col, quantity_col) {
+  price <- g[[price_col]]
+  quantity <- g[[quantity_col]]
+  y <- ihs10(quantity)
+
+  fit <- nlsLM(
+    y ~ zben_ihs(price, Q0, alpha),
+    start = list(Q0 = max(quantity), alpha = 1e-4),
+    lower = c(Q0 = 1e-8, alpha = 1e-10),
+    control = nls.lm.control(maxiter = 1024)
   )
+
+  estimate <- coef(fit)
+  coefficient_table <- summary(fit)$coefficients
+  critical <- qt(0.975, df = length(y) - length(estimate))
+  lower_ci <- estimate - critical * coefficient_table[, "Std. Error"]
+  upper_ci <- estimate + critical * coefficient_table[, "Std. Error"]
+  predicted <- predict(fit)
+
+  data.frame(
+    Q0 = unname(estimate["Q0"]),
+    Q0_low = unname(lower_ci["Q0"]),
+    Q0_high = unname(upper_ci["Q0"]),
+    alpha = unname(estimate["alpha"]),
+    alpha_low = unname(lower_ci["alpha"]),
+    alpha_high = unname(upper_ci["alpha"]),
+    EV = unname(1 / (100 * estimate["alpha"])),
+    Pmax = unname(calculate_pmax(estimate["Q0"], estimate["alpha"], price)),
+    R2 = 1 - sum((y - predicted)^2) / sum(y^2)
+  )
+}
 ```
 
----
+## Own-price results
 
-## 2. Demand Curve Analysis
+```{r own-price-results}
+own_specs <- data.frame(
+  phase = c(1, 2, 3, 3, 4),
+  commodity = c("Food", "Social", "Food", "Social", "Food"),
+  price_col = c("foodfr", "socfr", "foodfr", "socfr", "foodfr"),
+  quantity_col = c("foodr", "socr", "foodr", "socr", "foodr")
+)
 
-This section replicates the model fitting in the order presented in the Results section of the published article. Each subsection corresponds to an experimental phase.
-
-### Phase 1: Food Price Varied, Social Price Constant (FR 1)
-
-In this phase, the price of food was systematically increased across sessions, while the price of social interaction was held constant at a low price (FR 1). This allows us to perform two key analyses:
-
-1.  **Own-Price Demand for Food**: We fit the **Zero-Bounded Exponential (ZBEn) model** to the food consumption data. This analysis quantifies how demand for food changes as its own price increases. We expect to see consumption decrease as price increases.
-2.  **Cross-Price Demand for Social Interaction**: We model how consumption of the constant-price social reinforcer changes as the price of food increases. An increase in social consumption as food becomes more expensive would indicate a **substitutable relationship** between the two reinforcers.
-
-```{r phase1_analysis}
-# --- 2.1 Phase 1 Analysis: Food Price Varied ---
-
-# --- Own-Price Demand for Food (ZBEn Model) ---
-# This analysis fits the ZBEn model to each subject's food consumption data
-# from Phase 1 to estimate demand intensity (Q0) and elasticity (alpha).
-
-cat("--- Phase 1: Own-Price Food Demand Parameters (ZBEn Model) ---\n")
-own_price_food_p1 <- analysis_data |>
-  filter(cond == 1) |>
-  group_by(subj) |>
-  reframe({
-    # Fit the nlsLM model only ONCE per subject
-    fit <- nlsLM(
-      food_rate_ihs ~ lhs(Q0) * exp((-a / lhs(Q0)) * Q0 * foodfr),
-      start = list(a = 0.0001, Q0 = 50),
-      control = nls.lm.control(maxiter = 1024)
+own_results <- do.call(rbind, lapply(seq_len(nrow(own_specs)), function(i) {
+  spec <- own_specs[i, ]
+  phase_data <- dat[dat$cond == spec$phase, ]
+  do.call(rbind, lapply(split(phase_data, phase_data$subj), function(g) {
+    cbind(
+      data.frame(
+        Phase = spec$phase,
+        Commodity = spec$commodity,
+        Rat = unique(g$rat)
+      ),
+      fit_zben(g, spec$price_col, spec$quantity_col)
     )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      alpha = coef(fit)[['a']],
-      Q0 = coef(fit)[['Q0']]
-    )
-  })
+  }))
+}))
+rownames(own_results) <- NULL
 
-print(own_price_food_p1)
+own_display <- own_results[, c("Phase", "Commodity", "Rat", "Q0", "alpha", "EV", "Pmax", "R2")]
+own_display$Rat <- paste0("R", own_display$Rat)
+own_display$Q0 <- round(own_display$Q0, 2)
+own_display$alpha <- formatC(own_display$alpha, format = "e", digits = 2)
+own_display$EV <- round(own_display$EV, 2)
+own_display$Pmax <- round(own_display$Pmax, 2)
+own_display$R2 <- round(own_display$R2, 3)
 
-
-# --- Cross-Price Demand for Social Interaction (Exponential Model) ---
-# This analysis fits an exponential model to social consumption data to test
-# how it changes as a function of the increasing food price.
-# A negative 'I' (Interaction) parameter indicates substitutability.
-
-cat("\n--- Phase 1: Cross-Price Social Demand Parameters (Exponential Model) ---\n")
-cross_price_social_p1 <- analysis_data |>
-  filter(cond == 1) |>
-  group_by(subj) |>
-  reframe({
-    # Fit the nlsLM model only ONCE per subject
-    fit <- nlsLM(
-      socr ~ log10(Q_alone) + I * exp(-beta * foodfr),
-      start = list(beta = 0.01, Q_alone = 100, I = 1),
-      control = nls.lm.control(maxiter = 1024)
-    )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      beta = coef(fit)[['beta']],
-      Q_alone = coef(fit)[['Q_alone']],
-      I = coef(fit)[['I']]
-    )
-  })
-
-print(cross_price_social_p1)
+kable(
+  own_display,
+  align = c("c", "l", "c", "r", "r", "r", "r", "r"),
+  caption = "Re-estimated ZBEn parameters. R2 uses the article's uncentered definition."
+)
 ```
 
----
+### Check against published point estimates
 
-### Phase 2: Social Price Varied, Food Price Constant (FR 1)
+```{r own-price-benchmark}
+published_own <- data.frame(
+  Phase = c(rep(1, 4), rep(2, 4), 3, 3, 3, 3, 4, 4),
+  Commodity = c(rep("Food", 4), rep("Social", 4), "Food", "Food", "Social", "Social", "Food", "Food"),
+  Rat = c(2, 4, 6, 8, 2, 4, 6, 8, 4, 6, 4, 6, 4, 6),
+  published_Q0 = c(177.74, 260.45, 393.35, 217.58, 36.60, 67.85, 15.31, 48.44, 159.78, 195.92, 64.05, 55.45, 273.15, 193.25),
+  published_alpha = c(4.55e-4, 1.17e-4, 2.87e-4, 1.92e-4, 4.07e-3, 2.82e-3, 1.08e-2, 4.24e-3, 5.92e-5, 1.35e-4, 1.45e-3, 4.77e-3, 5.58e-5, 1.31e-4)
+)
 
-In this phase, the experimental conditions were reversed: the price of social interaction was systematically increased across sessions, while the price of food was held constant at a low price (FR 1). This allows us to test the other side of the reinforcer interaction:
+benchmark <- merge(own_results, published_own, by = c("Phase", "Commodity", "Rat"))
+benchmark$Q0_relative_error <- abs(benchmark$Q0 - benchmark$published_Q0) / benchmark$published_Q0
+benchmark$alpha_relative_error <- abs(benchmark$alpha - benchmark$published_alpha) / benchmark$published_alpha
 
-1.  **Own-Price Demand for Social Interaction**: We fit the **ZBEn model** to the social interaction data to quantify how demand for social access changes as its own price increases.
-2.  **Cross-Price Demand for Food**: We model how consumption of the constant-price food reinforcer changes as the price of social interaction increases. If the two reinforcers are independent in this context, we would expect to see little to no change in food consumption.
+benchmark_display <- data.frame(
+  Phase = benchmark$Phase,
+  Commodity = benchmark$Commodity,
+  Rat = paste0("R", benchmark$Rat),
+  `Q0: reproduced` = round(benchmark$Q0, 3),
+  `Q0: published` = benchmark$published_Q0,
+  `alpha: reproduced` = formatC(benchmark$alpha, format = "e", digits = 3),
+  `alpha: published` = formatC(benchmark$published_alpha, format = "e", digits = 3),
+  check.names = FALSE
+)
 
-```{r phase2_analysis}
-# --- 2.2 Phase 2 Analysis: Social Price Varied ---
+kable(benchmark_display, caption = "Point-estimate check against Table 2 of the published article")
 
-# --- Own-Price Demand for Social Interaction (ZBEn Model) ---
-# This analysis fits the ZBEn model to each subject's social consumption data
-# from Phase 2 to estimate demand intensity (Q0) and elasticity (alpha).
-
-cat("--- Phase 2: Own-Price Social Demand Parameters (ZBEn Model) ---\n")
-own_price_social_p2 <- analysis_data |>
-  filter(cond == 2) |>
-  group_by(subj) |>
-  reframe({
-    # Fit the nlsLM model only ONCE per subject
-    fit <- nlsLM(
-      social_rate_ihs ~ lhs(Q0) * exp((-a / lhs(Q0)) * Q0 * socfr),
-      start = list(a = 0.0001, Q0 = 50),
-      control = nls.lm.control(maxiter = 1024)
-    )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      alpha = coef(fit)[['a']],
-      Q0 = coef(fit)[['Q0']]
-    )
-  })
-
-print(own_price_social_p2)
-
-
-# --- Cross-Price Demand for Food (Exponential Model) ---
-# This analysis fits an exponential model to food consumption data to test
-# how it changes as a function of the increasing social price.
-# A non-significant 'I' (Interaction) parameter suggests independence.
-
-cat("\n--- Phase 2: Cross-Price Food Demand Parameters (Exponential Model) ---\n")
-cross_price_food_p2 <- analysis_data |>
-  filter(cond == 2) |>
-  group_by(subj) |>
-  reframe({
-    # Fit the nlsLM model only ONCE per subject
-    fit <- nlsLM(
-      foodr ~ log10(Q_alone) + I * exp(-beta * socfr),
-      start = list(beta = 0.01, Q_alone = 100, I = 1),
-      control = nls.lm.control(maxiter = 1024)
-    )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      beta = coef(fit)[['beta']],
-      Q_alone = coef(fit)[['Q_alone']],
-      I = coef(fit)[['I']]
-    )
-  })
-
-print(cross_price_food_p2)
+cat(
+  "Maximum relative difference after accounting for published rounding:",
+  sprintf(
+    "Q0 = %.3f%%; alpha = %.3f%%.",
+    100 * max(benchmark$Q0_relative_error),
+    100 * max(benchmark$alpha_relative_error)
+  )
+)
 ```
 
----
+The reproduced $Q_0$ and $\alpha$ estimates agree with the published point estimates to rounding precision. Across phases, food had higher $Q_0$ and essential value than social interaction under the studied conditions. This is a contextual comparison, not evidence that reinforcer value is fixed across procedures or motivational states.
 
-### Phase 3: Concurrent Price Increase
+## Cross-price results
 
-In this phase, the prices of both food and social reinforcers were increased together across sessions. This allows for a direct, within-subject comparison of the **own-price demand** for each reinforcer when both are becoming progressively more expensive.
+```{r cross-price-functions}
+fit_cross_linear <- function(g, price_col, quantity_col) {
+  price <- g[[price_col]]
+  y <- log10(g[[quantity_col]])
+  fit <- lm(y ~ price)
+  interval <- confint(fit)
+  data.frame(
+    kappa = unname(coef(fit)["price"]),
+    kappa_low = interval["price", 1],
+    kappa_high = interval["price", 2],
+    mu = unname(coef(fit)["(Intercept)"]),
+    R2 = summary(fit)$r.squared
+  )
+}
 
-We again fit the **ZBEn model** to the consumption data for each reinforcer separately. This analysis helps determine which reinforcer retains its value more effectively under escalating costs. Note that only two subjects (Rats 4 and 6) completed this phase of the experiment.
+phase2_starts <- list(
+  "1" = list(Qalone = 140.29, I = 0.0959, beta = -0.0386),
+  "2" = list(Qalone = 197.07, I = 1e-9, beta = -0.56),
+  "3" = list(Qalone = 168.71, I = 0.138, beta = 0.578),
+  "4" = list(Qalone = 199.73, I = 1e-9, beta = -1.19)
+)
 
-```{r phase3_analysis}
-# --- 2.3 Phase 3 Analysis: Concurrent Price Increase ---
+fit_cross_exponential <- function(g, phase, price_col, quantity_col) {
+  price <- g[[price_col]]
+  quantity <- g[[quantity_col]]
+  y <- log10(quantity)
 
-# In this phase, the prices for food and social interaction increased together.
-# We fit the ZBEn model to each reinforcer type to compare their demand parameters
-# directly under these conditions.
+  start <- if (phase == 1) {
+    list(Qalone = max(quantity), I = -0.5, beta = 0.01)
+  } else {
+    phase2_starts[[as.character(unique(g$subj))]]
+  }
 
-cat("--- Phase 3: Own-Price Demand Parameters (ZBEn Model) ---\n")
-own_price_p3 <- analysis_data |>
-  filter(cond == 3) |>
-  # Pivot to a long format to analyze both reinforcers in one pipeline
-  tidyr::pivot_longer(
-    cols = c(foodr, socr),
-    names_to = "reinforcer_type",
-    values_to = "consumption"
-  ) |>
-  mutate(
-    price = ifelse(reinforcer_type == "foodr", foodfr, socfr),
-    consumption_ihs = lhs(consumption)
-  ) |>
-  group_by(subj, reinforcer_type) |>
-  reframe({
-    # Fit the nlsLM model once for each subject and reinforcer type
-    fit <- nlsLM(
-      consumption_ihs ~ lhs(Q0) * exp((-a / lhs(Q0)) * Q0 * price),
-      start = list(a = 0.0001, Q0 = 50),
-      control = nls.lm.control(maxiter = 1024)
+  fit <- nlsLM(
+    y ~ log10(Qalone) + I * exp(-beta * price),
+    start = start,
+    control = nls.lm.control(maxiter = 1024)
+  )
+  estimate <- coef(fit)
+  predicted <- predict(fit)
+
+  data.frame(
+    Qalone = unname(estimate["Qalone"]),
+    I = unname(estimate["I"]),
+    beta = unname(estimate["beta"]),
+    R2 = 1 - sum((y - predicted)^2) / sum((y - mean(y))^2)
+  )
+}
+
+cross_specs <- data.frame(
+  phase = c(1, 2),
+  fixed_commodity = c("Social", "Food"),
+  price_col = c("foodfr", "socfr"),
+  quantity_col = c("socr", "foodr")
+)
+
+cross_linear <- do.call(rbind, lapply(seq_len(nrow(cross_specs)), function(i) {
+  spec <- cross_specs[i, ]
+  phase_data <- dat[dat$cond == spec$phase, ]
+  do.call(rbind, lapply(split(phase_data, phase_data$subj), function(g) {
+    cbind(
+      data.frame(Phase = spec$phase, Fixed = spec$fixed_commodity, Rat = unique(g$rat)),
+      fit_cross_linear(g, spec$price_col, spec$quantity_col)
     )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      alpha = coef(fit)[['a']],
-      Q0 = coef(fit)[['Q0']]
-    )
-  })
+  }))
+}))
 
-print(own_price_p3)
+cross_exponential <- do.call(rbind, lapply(seq_len(nrow(cross_specs)), function(i) {
+  spec <- cross_specs[i, ]
+  phase_data <- dat[dat$cond == spec$phase, ]
+  do.call(rbind, lapply(split(phase_data, phase_data$subj), function(g) {
+    cbind(
+      data.frame(Phase = spec$phase, Fixed = spec$fixed_commodity, Rat = unique(g$rat)),
+      fit_cross_exponential(g, spec$phase, spec$price_col, spec$quantity_col)
+    )
+  }))
+}))
 ```
 
----
+```{r cross-price-tables}
+linear_display <- cross_linear[, c("Phase", "Fixed", "Rat", "kappa", "kappa_low", "kappa_high", "mu", "R2")]
+linear_display$Rat <- paste0("R", linear_display$Rat)
+for (column in c("kappa", "kappa_low", "kappa_high")) {
+  linear_display[[column]] <- formatC(linear_display[[column]], format = "e", digits = 2)
+}
+linear_display$mu <- round(linear_display$mu, 3)
+linear_display$R2 <- round(linear_display$R2, 3)
+kable(linear_display, caption = "Linear cross-price models on log10 consumption")
 
-### Phase 4: Food Demand in Isolation (No Social Alternative)
+exponential_display <- cross_exponential[, c("Phase", "Fixed", "Rat", "Qalone", "I", "beta", "R2")]
+exponential_display$Rat <- paste0("R", exponential_display$Rat)
+exponential_display$Qalone <- round(exponential_display$Qalone, 2)
+exponential_display$I <- round(exponential_display$I, 4)
+exponential_display$beta <- round(exponential_display$beta, 4)
+exponential_display$R2 <- round(exponential_display$R2, 3)
+kable(exponential_display, caption = "Exponential cross-price models on log10 consumption")
+```
 
-In this final phase, the demand for food was assessed when it was the only available reinforcer. The price of food was systematically increased across sessions, just as in Phase 1, but with the social interaction option removed entirely.
+All four Phase 1 linear slopes are positive, and all four Phase 1 exponential interaction terms are negative. Both patterns support the article's conclusion that social interaction partially substituted for food as food became more expensive. In Phase 2, slopes are small and inconsistent in direction, and the exponential fits are weak or poorly identified. This supports the narrower conclusion that food consumption did not change systematically with social price in this procedure.
 
-This design allows for a direct comparison of the **own-price demand for food** in two different economic contexts: with a potential substitute available (Phase 1) versus without one (Phase 4). By comparing the demand parameters ($\alpha$ and $Q_0$) between these phases, we can quantify how the presence of a social alternative impacts the value of food. Note that only two subjects (Rats 4 and 6) completed this phase.
+The Phase 2 exponential estimates should not be overinterpreted. With only five or six observations per rat and an approximately flat outcome, $Q_{alone}$, $I$, and $\beta$ can trade off against one another, producing local solutions and unstable confidence intervals. The linear slopes and the observed curves provide the clearer evidence.
 
-```{r phase4_analysis}
-# --- 2.4 Phase 4 Analysis: Food Price Varied in Isolation ---
+## Demand curves
 
-# This analysis fits the ZBEn model to each subject's food consumption data
-# from Phase 4, where no social alternative was available.
+```{r phase-1-2-curves, fig.width=12, fig.height=6, fig.cap="Observed own-price and cross-price consumption with fitted ZBEn own-price curves. Panels are scaled by rat to emphasize within-rat price effects."}
+plot_phase_panels <- function(phase, own_quantity, fixed_quantity, price_col, y_label) {
+  phase_data <- dat[dat$cond == phase, ]
+  rats <- sort(unique(phase_data$rat))
 
-cat("--- Phase 4: Own-Price Food Demand Parameters (ZBEn Model, No Social Alternative) ---\n")
-own_price_food_p4 <- analysis_data |>
-  filter(cond == 4) |>
-  group_by(subj) |>
-  reframe({
-    # Fit the nlsLM model only ONCE per subject
-    fit <- nlsLM(
-      food_rate_ihs ~ lhs(Q0) * exp((-a / lhs(Q0)) * Q0 * foodfr),
-      start = list(a = 0.0001, Q0 = 50),
-      control = nls.lm.control(maxiter = 1024)
+  old_par <- par(mfrow = c(1, length(rats)), mar = c(4.2, 4.2, 2.5, 1), las = 1)
+  on.exit(par(old_par), add = TRUE)
+
+  for (index in seq_along(rats)) {
+    rat_id <- rats[index]
+    g <- phase_data[phase_data$rat == rat_id, ]
+    own_row <- own_results[
+      own_results$Phase == phase & own_results$Rat == rat_id &
+        own_results$Commodity == ifelse(phase == 1, "Food", "Social"),
+    ]
+    grid <- exp(seq(log(min(g[[price_col]])), log(max(g[[price_col]])), length.out = 250))
+    fitted <- zben_quantity(grid, own_row$Q0, own_row$alpha)
+    y_max <- max(c(g[[own_quantity]], g[[fixed_quantity]], fitted), na.rm = TRUE) * 1.08
+
+    plot(
+      g[[price_col]], g[[own_quantity]],
+      log = "x", pch = 16, col = "#1f5a94",
+      xlab = "Varied FR price", ylab = if (index == 1) y_label else "",
+      ylim = c(0, y_max), main = paste0("R", rat_id)
     )
-    # Extract coefficients into a tidy data frame
-    tibble(
-      alpha = coef(fit)[['a']],
-      Q0 = coef(fit)[['Q0']]
-    )
-  })
+    lines(grid, fitted, col = "#1f5a94", lwd = 2)
+    points(g[[price_col]], g[[fixed_quantity]], pch = 0, col = "#b45f06", lwd = 1.5)
+    if (index == 1) {
+      legend(
+        "topright",
+        legend = c("Own-price", "Fixed-price"),
+        col = c("#1f5a94", "#b45f06"), pch = c(16, 0), lty = c(1, NA),
+        bty = "n", cex = 0.8
+      )
+    }
+  }
+}
 
-print(own_price_food_p4)
+plot_phase_panels(1, "foodr", "socr", "foodfr", "Reinforcers per session")
+```
+
+```{r phase-2-curves, fig.width=12, fig.height=6, fig.cap="Phase 2: social own-price demand and fixed-price food consumption."}
+plot_phase_panels(2, "socr", "foodr", "socfr", "Reinforcers per session")
+```
+
+### Food with and without a social alternative
+
+```{r phase-4-comparison, fig.width=9, fig.height=4.5, fig.cap="Food demand for R4 and R6 with a social alternative (Phase 1) and without one (Phase 4)."}
+old_par <- par(mfrow = c(1, 2), mar = c(4.2, 4.2, 2.5, 1), las = 1)
+for (rat_id in c(4, 6)) {
+  g1 <- dat[dat$cond == 1 & dat$rat == rat_id, ]
+  g4 <- dat[dat$cond == 4 & dat$rat == rat_id, ]
+  r1 <- own_results[own_results$Phase == 1 & own_results$Rat == rat_id & own_results$Commodity == "Food", ]
+  r4 <- own_results[own_results$Phase == 4 & own_results$Rat == rat_id & own_results$Commodity == "Food", ]
+  grid <- exp(seq(log(1), log(max(c(g1$foodfr, g4$foodfr))), length.out = 300))
+  y_max <- max(c(g1$foodr, g4$foodr)) * 1.08
+
+  plot(g1$foodfr, g1$foodr, log = "x", pch = 1, col = "#b45f06",
+       xlab = "Food FR price", ylab = "Food reinforcers per session",
+       ylim = c(0, y_max), main = paste0("R", rat_id))
+  lines(grid, zben_quantity(grid, r1$Q0, r1$alpha), col = "#b45f06", lwd = 2)
+  points(g4$foodfr, g4$foodr, pch = 16, col = "#1f5a94")
+  lines(grid, zben_quantity(grid, r4$Q0, r4$alpha), col = "#1f5a94", lwd = 2)
+  legend("topright", c("With social option", "Food alone"),
+         col = c("#b45f06", "#1f5a94"), pch = c(1, 16), lty = 1, bty = "n", cex = 0.85)
+}
+par(old_par)
+```
+
+For both rats that completed Phase 4, food-alone demand had a lower $\alpha$ and higher essential value than food demand with a low-priced social alternative. This pattern is consistent with partial substitution: when social access was available, some expensive food reinforcers were traded for social reinforcers.
+
+## Interpretation and limitations
+
+The reproduced analyses support four study-specific conclusions:
+
+1. Food and social interaction both functioned as reinforcers: consumption decreased as each outcome's own price increased.
+2. Under these parameters, food demand was more robust and less elastic than social demand.
+3. Social interaction partially substituted for food when food price increased, whereas food consumption did not change systematically when social price increased.
+4. Food demand was less elastic when food was the only available reinforcer than when a low-priced social alternative was present.
+
+These conclusions are bounded by the design:
+
+- Only four focal rats completed Phases 1 and 2; only R4 and R6 completed Phases 3 and 4.
+- Price and total reinforcer income covaried within fixed-duration sessions, so price effects cannot be isolated from income effects.
+- Social delivery was less immediate than food delivery and involved handling of the partner rat.
+- The study used a partially open economy with post-session access to food and social contact.
+- Cross-price labels describe context-dependent relations; they should not be treated as immutable properties of food or social interaction.
+- Re-estimating a model on the same data is a reproducibility check, not an independent replication.
+
+## Computational environment
+
+```{r session-info}
+sessionInfo()
 ```

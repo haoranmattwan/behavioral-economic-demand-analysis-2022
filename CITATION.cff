@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: >-
+  If you use this repository, please cite the peer-reviewed article below.
+title: >-
+  Demand and Preference for Social and Food Reinforcement in Rats:
+  Reproducible Research Materials
+type: software
+authors:
+  - family-names: Kirkman
+    given-names: Cyrus
+  - family-names: Wan
+    given-names: Haoran
+  - family-names: Hackenberg
+    given-names: Timothy D.
+repository-code: https://github.com/haoranmattwan/behavioral-economic-demand-analysis-2022
+license: MIT
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Kirkman
+      given-names: Cyrus
+    - family-names: Wan
+      given-names: Haoran
+    - family-names: Hackenberg
+      given-names: Timothy D.
+  title: >-
+    A behavioral-economic analysis of demand and preference for social and
+    food reinforcement in rats
+  journal: Learning and Motivation
+  year: 2022
+  volume: 77
+  doi: 10.1016/j.lmot.2021.101780

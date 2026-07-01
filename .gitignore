@@ -18,4 +18,5 @@ renv/staging/
 
 # OS / Editor specific
 .DS_Store
+._*
 .vscode/
