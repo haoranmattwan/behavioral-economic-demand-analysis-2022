@@ -1,22 +1,135 @@
-# Python
+# Research data -------------------------------------------------------------
+# Keep analysis code and documentation public; keep raw and derived data local.
+/Data/
+/Raw Data/
+/Stata/dataset/
+*.csv
+*.tsv
+*.tab
+*.dta
+*.sav
+*.por
+*.sas7bdat
+*.parquet
+*.feather
+*.rds
+*.RDS
+*.rda
+*.RData
+*.xlsx
+*.xls
+
+# Private drafts and internal review material -------------------------------
+/Manuscript/
+/Drafts/
+/drafts/
+/Private/
+/private/
+* draft.*
+*_draft.*
+*-draft.*
+*submission*.docx
+*submission*.pdf
+
+# Correspondence ------------------------------------------------------------
+/Correspondence/
+/correspondence/
+/Email/
+/Emails/
+/email/
+/emails/
+*.eml
+*.msg
+
+# Qualtrics projects and exports --------------------------------------------
+/Qualtrics/
+/qualtrics/
+*.qsf
+*Qualtrics*
+*qualtrics*
+
+# Literature and reference libraries ---------------------------------------
+/Reference/
+/References/
+/Literature/
+/literature/
+*.bib.bak
+*.enw
+*.nbib
+*.ris
+
+# Receipts, invoices, and administrative records ---------------------------
+/Receipts/
+/receipts/
+/Invoices/
+/invoices/
+*receipt*
+*Receipt*
+*invoice*
+*Invoice*
+
+# Python caches and local environments -------------------------------------
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyd
 .ipynb_checkpoints/
 .venv/
+venv/
 env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# R
+# R caches and local environments ------------------------------------------
 .Rhistory
 .RData
+.Ruserdata
 .Rproj.user/
 renv/library/
 renv/staging/
 
-# Stata
+# Quarto, Jupyter, and temporary caches ------------------------------------
+.quarto/
+*_cache/
+cache/
+.cache/
+/tmp/
+*.nbconvert.ipynb
+*.knit.md
+*.utf8.md
+
+# Generated analysis outputs ------------------------------------------------
+/Analysis/*.html
+/Analysis/*_files/
+/Kirkman Within Session Analysis/*.html
+/Stata/output/
+/Table/
+/output/
+/outputs/
+/results/
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.toc
+
+# Stata generated files -----------------------------------------------------
 *.log
 *.smcl
 
-# OS / Editor specific
+# Office, editor, and operating-system artifacts ---------------------------
+~$*
 .DS_Store
 ._*
 .vscode/
+.idea/
+*.swp
+*.swo
+*~
