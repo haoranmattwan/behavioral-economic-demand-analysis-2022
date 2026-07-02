@@ -80,7 +80,7 @@ do "Stata/code/model subj cond4.do"
 
 ## Data availability
 
-The version-controlled Stata datasets support inspection of the Stata analyses. The R and Python workflows use the processed file `data with bl mean.csv`; this file is not part of the public Git history and may be requested from the authors. See [DATA_AVAILABILITY.md](DATA_AVAILABILITY.md) for the repository's data inventory and access details.
+The version-controlled Stata datasets support inspection of the Stata analyses. The R and Python workflows use the processed file `data with bl mean.csv`; this file is not part of the public Git history and may be requested from the authors.
 
 ## Open-science practices
 

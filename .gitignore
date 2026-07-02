@@ -133,3 +133,11 @@ cache/
 *.swp
 *.swo
 *~
+
+
+# Other --------------------------------------------------------------------
+/Kirkman Within Session Analysis/
+/Kirkman et al., 2022.pdf
+/Poster/
+/RawCode.Rmd
+/prism/
